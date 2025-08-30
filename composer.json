@@ -59,6 +59,13 @@
         "analyse": "phpstan analyse",
         "lint": "pint --test"
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TimurTurdyev\\SimpleSearch\\SimpleSearchServiceProvider"
+            ]
+        }
+    },
     "minimum-stability": "stable",
     "prefer-stable": true
 }
