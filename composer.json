@@ -21,15 +21,15 @@
         "php": "^8.3",
         "ext-mbstring": "*",
         "ext-pdo": "*",
-        "illuminate/cache": "^12.0",
-        "illuminate/contracts": "^12.0",
-        "illuminate/database": "^12.0",
-        "illuminate/support": "^12.0",
+        "illuminate/cache": "^12.0|^13.0",
+        "illuminate/contracts": "^12.0|^13.0",
+        "illuminate/database": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0",
         "psr/log": "^3.0"
     },
     "require-dev": {
         "laravel/pint": "^1.0",
-        "orchestra/testbench": "^10.0",
+        "orchestra/testbench": "^10.0|^11.0",
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
         "phpstan/phpstan": "^2.0"
