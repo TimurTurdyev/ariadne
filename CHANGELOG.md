@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+All notable changes to this package are documented in this file.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+## [0.1.0] - 2026-02-21
 
 First version. The core of a faceted catalog without a domain: `Query` over a `Scope` of field constraints, a `QueryPlan` of intents (main, price bounds, palette, what-if), the disjunctive panel of `DisjunctivePolicy` with `keepZeros` and `minValues`, `QueryStringCodec` in the `comma` and `brackets` address styles, `PanelLinks` with ready addresses and landing pages through `LinkBase::landing()`, and `SearchCatalog`, which builds one screen and caches it when given a cache. Two ports, `CatalogIndex` and `FacetDictionary`, with a SQL implementation over a flat facet table: `SqlCatalogIndex`, `SqlCatalog`, `FlatFacetDictionary`. For Manticore: `Connection` with a handshake probe, `Table` as a schema in data with `drift()`, a batch `Writer`, and two publications that rebuild tables without downtime, `SwapCopies` and `AttachShadow`. `Text\Layout` reads text typed in the latin keyboard layout as cyrillic. The service provider binds the classes only when the application has not, and publishes the config under the `simple-search-config` tag.
 
