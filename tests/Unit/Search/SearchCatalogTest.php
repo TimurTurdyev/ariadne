@@ -235,6 +235,77 @@ it('keeps the stale screen while the engine is down during a refresh', function 
     }
 });
 
+it('reads a cached screen back from a store that allows no classes, as Laravel 13 does by default', function (): void {
+    [$deferred, $reported] = core_screen_after_response();
+    $dictionary = InMemoryFacetDictionary::catalog();
+    $response = new IndexResponse(
+        [new Hit(1, ['model' => 10, 'price' => 10000], ['name' => 'Стол', 'sizes' => [62, 68]], ['variants' => [['id' => 5, 'price' => 9000.0]], 'family' => 7])],
+        1,
+        [
+            'main' => [$dictionary->termId('brand', 'riva') => 1],
+            'palette' => [
+                $dictionary->termId('color', 'venge') => 3,
+                $dictionary->termId('uphol-material', 'kozha') => 2,
+                $dictionary->termId('uphol-material', 'tkan') => 2,
+                $dictionary->termId('brand', 'riva') => 2,
+            ],
+            'what-if:color' => [$dictionary->termId('color', 'venge') => 1],
+            'what-if:uphol-material' => [$dictionary->termId('uphol-material', 'kozha') => 1],
+        ],
+        new PriceBounds(1000.0, 50000.0),
+        owners: 1,
+    );
+    $index = new RecordingIndex($response);
+    $catalog = new SearchCatalog(
+        $index,
+        $dictionary,
+        // Serialize values, allow no classes; positional, as stores before Laravel 12.53 take one argument.
+        cache: new Repository(new ArrayStore(true, false)),
+    );
+    $query = (new Query(new Scope('section', [Constraint::in('sections', [10])], 'model'), text: 'desk'))
+        ->withSelection(new Selection([
+            new FacetChoice(FacetId::fromString('color'), [FacetValueId::fromString('venge')]),
+            new FacetChoice(
+                FacetId::fromString('uphol-material'),
+                [FacetValueId::fromString('kozha'), FacetValueId::fromString('tkan')],
+                FacetOperator::All,
+            ),
+        ]))
+        ->withPrice(new PriceRange(1000.0, 40000.0))
+        ->withSort('price-asc')
+        ->withPage(new PageRequest(2, 24));
+
+    $uncached = (new SearchCatalog(new RecordingIndex($response), $dictionary))($query);
+
+    try {
+        Carbon::setTestNow('2026-11-16 10:00:00');
+        $built = $catalog($query);
+        $cached = $catalog($query);
+
+        expect($built)->toEqual($uncached, 'nothing is lost on the way through the cache')
+            ->and($cached)->toEqual($uncached)
+            ->and($index->calls)->toBe(1, 'the second screen came from the cache')
+            ->and($cached->panel->groupFor(FacetId::fromString('uphol-material'))?->operator)->toBe(FacetOperator::All);
+
+        Carbon::setTestNow('2026-11-16 10:06:40');
+        $index->fail = true;
+        $stale = $catalog($query);
+        $deferred->invoke();
+
+        Carbon::setTestNow('2026-11-16 10:08:00');
+        $kept = $catalog($query);
+
+        expect($stale)->toEqual($uncached)
+            ->and($kept)->toEqual($uncached)
+            ->and($index->calls)->toBe(2, 'the refresh met the outage')
+            ->and($reported->getArrayCopy())->toBe([], 'the refresh read the stale screen back as well')
+            ->and($deferred)->toHaveCount(0, 'the kept screen is fresh again');
+    } finally {
+        Carbon::setTestNow();
+        Container::setInstance(null);
+    }
+});
+
 it('moves the price filter down to the base scale', function (): void {
     $index = core_screen_index();
 

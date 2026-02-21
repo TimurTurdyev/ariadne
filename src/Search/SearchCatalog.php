@@ -8,16 +8,29 @@ use Closure;
 use Illuminate\Cache\Repository;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Throwable;
 use TimurTurdyev\SimpleSearch\Dictionary\FacetDictionary;
 use TimurTurdyev\SimpleSearch\Facets\DisjunctivePolicy;
+use TimurTurdyev\SimpleSearch\Facets\FacetGroup;
+use TimurTurdyev\SimpleSearch\Facets\FacetId;
+use TimurTurdyev\SimpleSearch\Facets\FacetOperator;
 use TimurTurdyev\SimpleSearch\Facets\FacetPanel;
+use TimurTurdyev\SimpleSearch\Facets\FacetTerm;
+use TimurTurdyev\SimpleSearch\Facets\FacetValueCount;
+use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
 use TimurTurdyev\SimpleSearch\Facets\ValueOrder;
 use TimurTurdyev\SimpleSearch\Index\CatalogIndex;
 use TimurTurdyev\SimpleSearch\Index\CatalogIndexUnavailable;
+use TimurTurdyev\SimpleSearch\Query\Constraint;
+use TimurTurdyev\SimpleSearch\Query\FacetChoice;
+use TimurTurdyev\SimpleSearch\Query\Need;
+use TimurTurdyev\SimpleSearch\Query\PageRequest;
 use TimurTurdyev\SimpleSearch\Query\PriceRange;
 use TimurTurdyev\SimpleSearch\Query\PriceScale;
 use TimurTurdyev\SimpleSearch\Query\Query;
 use TimurTurdyev\SimpleSearch\Query\QueryPlan;
+use TimurTurdyev\SimpleSearch\Query\Scope;
+use TimurTurdyev\SimpleSearch\Query\Selection;
 use TimurTurdyev\SimpleSearch\Results\Hit;
 use TimurTurdyev\SimpleSearch\Results\PriceBounds;
 use TimurTurdyev\SimpleSearch\Results\ResultPage;
@@ -29,6 +42,29 @@ final class SearchCatalog
 {
     // Fresh for 300 seconds, then served stale while it refreshes, gone after 600.
     private const CACHE_TTL = [300, 600];
+
+    // The screen is cached as a string and read back with these classes alone, whatever the store allows.
+    private const SCREEN_CLASSES = [
+        SearchResult::class,
+        Query::class,
+        Scope::class,
+        Constraint::class,
+        Selection::class,
+        FacetChoice::class,
+        FacetId::class,
+        FacetValueId::class,
+        FacetOperator::class,
+        PriceRange::class,
+        PageRequest::class,
+        Need::class,
+        ResultPage::class,
+        Hit::class,
+        FacetPanel::class,
+        FacetGroup::class,
+        FacetValueCount::class,
+        FacetTerm::class,
+        PriceBounds::class,
+    ];
 
     /**
      * @param  Repository|null  $cache  null builds every screen anew
@@ -75,21 +111,23 @@ final class SearchCatalog
 
         $key = $this->cacheKey($query, $scale, $cacheKeyParts);
 
-        return $this->cache->flexible(
+        $stored = $this->cache->flexible(
             $key,
             self::CACHE_TTL,
-            fn (): SearchResult => $this->refreshed($this->cache, $key, $query, $scale),
+            fn (): string => $this->refreshed($this->cache, $key, $query, $scale),
         );
+
+        return $this->unserialized($stored) ?? $this->screen($query, $scale);
     }
 
-    private function refreshed(Repository $cache, string $key, Query $query, PriceScale $scale): SearchResult
+    private function refreshed(Repository $cache, string $key, Query $query, PriceScale $scale): string
     {
         try {
-            return $this->screen($query, $scale);
+            return serialize($this->screen($query, $scale));
         } catch (CatalogIndexUnavailable $outage) {
-            $stale = $cache->get($key);
+            $stale = $this->unserialized($cache->get($key));
 
-            if (! $stale instanceof SearchResult || $stale->degraded) {
+            if ($stale === null || $stale->degraded) {
                 throw $outage;
             }
 
@@ -99,8 +137,24 @@ final class SearchCatalog
                 'error' => $outage->getMessage(),
             ]);
 
-            return $stale;
+            return serialize($stale);
         }
+    }
+
+    private function unserialized(mixed $stored): ?SearchResult
+    {
+        if (! is_string($stored)) {
+            return null;
+        }
+
+        // An entry that does not read back is a miss: the screen is built anew, the buyer sees no error.
+        try {
+            $result = @unserialize($stored, ['allowed_classes' => self::SCREEN_CLASSES]);
+        } catch (Throwable) {
+            return null;
+        }
+
+        return $result instanceof SearchResult ? $result : null;
     }
 
     private function screen(Query $query, PriceScale $scale): SearchResult
@@ -152,7 +206,7 @@ final class SearchCatalog
         $signature = implode('|', [$query->signature(), $scale->signature(), ...$parts]);
 
         // The version guards the stored shape: an entry written by other code is never read.
-        return 'simple-search:screen:v1:'.hash('xxh3', $signature);
+        return 'simple-search:screen:v2:'.hash('xxh3', $signature);
     }
 
     /**
