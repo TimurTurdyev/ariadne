@@ -85,3 +85,17 @@ it('counts price bounds over the selection only when asked for filtered bounds',
         ->and($selectionBounds->price->isEmpty())->toBeTrue('but never the price itself')
         ->and($filtered->keys())->toBe($bare->keys());
 });
+
+it('plans a palette for a price range without facets only when asked to', function (): void {
+    $query = (new Query(core_plan_scope()))->withPrice(new PriceRange(40000.0));
+
+    $plain = QueryPlan::forQuery($query);
+    $flagged = QueryPlan::forQuery($query, paletteOnPrice: true);
+
+    expect($plain->keys())->toBe(['main', 'price-bounds'])
+        ->and($plain->paletteKey())->toBe(IntentKind::Main->value)
+        ->and($flagged->keys())->toBe(['main', 'price-bounds', 'palette'])
+        ->and($flagged->paletteKey())->toBe(IntentKind::Palette->value, 'the panel reads the palette the plan has')
+        ->and(core_plan_intent($flagged, IntentKind::Palette)->query->price->isEmpty())->toBeTrue('the palette ignores the price')
+        ->and(QueryPlan::forQuery(new Query(core_plan_scope()), paletteOnPrice: true)->keys())->toBe(['main', 'price-bounds']);
+});

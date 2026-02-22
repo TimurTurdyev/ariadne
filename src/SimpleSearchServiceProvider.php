@@ -63,6 +63,7 @@ final class SimpleSearchServiceProvider extends ServiceProvider
                 // A misspelled order fails loudly: falling back would silently reorder every panel.
                 order: is_string($order) ? ValueOrder::from($order) : ValueOrder::Natural,
                 filteredBounds: (bool) ($screen['filtered_bounds'] ?? false),
+                paletteOnPrice: (bool) ($screen['palette_on_price'] ?? false),
             );
         });
 

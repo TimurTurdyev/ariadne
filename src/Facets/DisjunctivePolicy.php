@@ -25,6 +25,11 @@ final class DisjunctivePolicy
         private readonly int $minValues = 1,
     ) {}
 
+    public function keepsZeros(): bool
+    {
+        return $this->keepZeros;
+    }
+
     public function panel(
         QueryPlan $plan,
         IndexResponse $response,

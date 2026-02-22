@@ -38,6 +38,9 @@ return [
         // A value nothing matches stays in the panel, dimmed; false hides it.
         'keep_zeros' => true,
 
+        // With keep_zeros, values zeroed by a price range alone stay dimmed too; one more count per such screen.
+        'palette_on_price' => false,
+
         // A group without a selection is shown from this many values.
         'min_values' => 1,
     ],

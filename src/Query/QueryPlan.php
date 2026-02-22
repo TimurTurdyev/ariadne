@@ -19,8 +19,9 @@ final readonly class QueryPlan
 
     /**
      * @param  bool  $filteredBounds  count price bounds over the selection, not the bare scope
+     * @param  bool  $paletteOnPrice  a price range alone gets the palette too, so values it zeroes stay dimmed
      */
-    public static function forQuery(Query $query, bool $filteredBounds = false): self
+    public static function forQuery(Query $query, bool $filteredBounds = false, bool $paletteOnPrice = false): self
     {
         // The main intent always runs; the rest is only for the panel.
         $intents = [PlanIntent::main($query)];
@@ -31,23 +32,29 @@ final readonly class QueryPlan
 
         $intents[] = PlanIntent::priceBounds($query, $filteredBounds);
 
-        if ($query->hasFacets()) {
+        if ($query->hasFacets() || ($paletteOnPrice && ! $query->price->isEmpty())) {
             $intents[] = PlanIntent::palette($query);
+        }
 
-            foreach ($query->selection->facets() as $facet) {
-                $intents[] = PlanIntent::whatIf($query, $facet);
-            }
+        foreach ($query->selection->facets() as $facet) {
+            $intents[] = PlanIntent::whatIf($query, $facet);
         }
 
         return new self($query, $intents);
     }
 
     /**
-     * The palette has its own intent when facets are selected, otherwise main serves it.
+     * The palette has its own intent when the plan has one, otherwise main serves it.
      */
     public function paletteKey(): string
     {
-        return $this->query->hasFacets() ? IntentKind::Palette->value : IntentKind::Main->value;
+        foreach ($this->intents as $intent) {
+            if ($intent->kind === IntentKind::Palette) {
+                return IntentKind::Palette->value;
+            }
+        }
+
+        return IntentKind::Main->value;
     }
 
     /**

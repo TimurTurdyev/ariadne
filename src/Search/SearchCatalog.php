@@ -71,6 +71,7 @@ final class SearchCatalog
      * @param  ValueOrder  $order  order of values inside a panel group
      * @param  bool  $filteredBounds  count price bounds over the selection, not the bare scope
      * @param  (Closure(Hit, PriceScale): Hit)|null  $displayPrices  moves the prices a hit carries to the display scale
+     * @param  bool  $paletteOnPrice  with keepZeros, values a price range alone zeroes stay dimmed; costs one more count
      */
     public function __construct(
         private readonly CatalogIndex $index,
@@ -81,6 +82,7 @@ final class SearchCatalog
         private readonly ValueOrder $order = ValueOrder::Natural,
         private readonly bool $filteredBounds = false,
         private readonly ?Closure $displayPrices = null,
+        private readonly bool $paletteOnPrice = false,
     ) {}
 
     /**
@@ -162,10 +164,15 @@ final class SearchCatalog
         $started = microtime(true);
 
         // The index keeps base prices, while users type bounds in the scale shown on cards.
-        $plan = QueryPlan::forQuery($query->withPrice(new PriceRange(
-            $scale->toBaseFrom($query->price->min),
-            $scale->toBaseTo($query->price->max),
-        )), $this->filteredBounds);
+        $plan = QueryPlan::forQuery(
+            $query->withPrice(new PriceRange(
+                $scale->toBaseFrom($query->price->min),
+                $scale->toBaseTo($query->price->max),
+            )),
+            $this->filteredBounds,
+            // Hidden zeros need no palette: there the flag would only cost a count.
+            $this->paletteOnPrice && $this->facets->keepsZeros(),
+        );
 
         $response = $this->index->execute($plan);
 
