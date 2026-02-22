@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Tests\Support;
+namespace TimurTurdyev\Ariadne\Tests\Support;
 
 use LogicException;
-use TimurTurdyev\SimpleSearch\Index\CatalogIndex;
-use TimurTurdyev\SimpleSearch\Index\CatalogIndexUnavailable;
-use TimurTurdyev\SimpleSearch\Query\QueryPlan;
-use TimurTurdyev\SimpleSearch\Results\IndexResponse;
+use TimurTurdyev\Ariadne\Index\CatalogIndex;
+use TimurTurdyev\Ariadne\Index\CatalogIndexUnavailable;
+use TimurTurdyev\Ariadne\Query\QueryPlan;
+use TimurTurdyev\Ariadne\Results\IndexResponse;
 
 /**
  * Index double: answers with a canned response and remembers how it was called.

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Index;
+namespace TimurTurdyev\Ariadne\Index;
 
-use TimurTurdyev\SimpleSearch\Query\QueryPlan;
-use TimurTurdyev\SimpleSearch\Results\IndexResponse;
+use TimurTurdyev\Ariadne\Query\QueryPlan;
+use TimurTurdyev\Ariadne\Results\IndexResponse;
 
 /**
  * The search index as the domain sees it: runs a plan of intents and returns the raw answer.

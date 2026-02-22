@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Results;
+namespace TimurTurdyev\Ariadne\Results;
 
 /**
  * One result item without a domain: the document id plus what the adapter knows about it.

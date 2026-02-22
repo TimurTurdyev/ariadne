@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Url;
+namespace TimurTurdyev\Ariadne\Url;
 
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use TimurTurdyev\SimpleSearch\Dictionary\FacetDictionary;
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Facets\FacetOperator;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
-use TimurTurdyev\SimpleSearch\Query\FacetChoice;
-use TimurTurdyev\SimpleSearch\Query\PageRequest;
-use TimurTurdyev\SimpleSearch\Query\PriceRange;
-use TimurTurdyev\SimpleSearch\Query\Query;
-use TimurTurdyev\SimpleSearch\Query\Scope;
-use TimurTurdyev\SimpleSearch\Query\Selection;
+use TimurTurdyev\Ariadne\Dictionary\FacetDictionary;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetOperator;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Query\FacetChoice;
+use TimurTurdyev\Ariadne\Query\PageRequest;
+use TimurTurdyev\Ariadne\Query\PriceRange;
+use TimurTurdyev\Ariadne\Query\Query;
+use TimurTurdyev\Ariadne\Query\Scope;
+use TimurTurdyev\Ariadne\Query\Selection;
 
 /**
  * Translates between a query string and a query; an unknown facet or value is dropped silently and logged.

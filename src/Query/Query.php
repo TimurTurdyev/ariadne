@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Query;
+namespace TimurTurdyev\Ariadne\Query;
 
 use Illuminate\Support\Str;
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetId;
 
 /**
  * The whole user intent: where to look, what is selected, in which order and on which page.

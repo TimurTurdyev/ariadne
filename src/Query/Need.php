@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Query;
+namespace TimurTurdyev\Ariadne\Query;
 
 /**
  * What a screen asks for: cards, the filter panel or both.

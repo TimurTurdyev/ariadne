@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Results;
+namespace TimurTurdyev\Ariadne\Results;
 
 /**
  * A results page with what pagination needs.

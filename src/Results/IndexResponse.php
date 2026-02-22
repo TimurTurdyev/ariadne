@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Results;
+namespace TimurTurdyev\Ariadne\Results;
 
-use TimurTurdyev\SimpleSearch\Query\PlanIntent;
+use TimurTurdyev\Ariadne\Query\PlanIntent;
 
 /**
  * Raw engine answer before any display rules; counts are keyed by term id.

@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Illuminate\Cache\ArrayStore;
-use TimurTurdyev\SimpleSearch\Manticore\AttachShadow;
-use TimurTurdyev\SimpleSearch\Manticore\Publication;
-use TimurTurdyev\SimpleSearch\Manticore\Published;
-use TimurTurdyev\SimpleSearch\Manticore\PublishFailed;
-use TimurTurdyev\SimpleSearch\Manticore\PublishRefused;
-use TimurTurdyev\SimpleSearch\Manticore\SwapCopies;
-use TimurTurdyev\SimpleSearch\Manticore\Table;
-use TimurTurdyev\SimpleSearch\Tests\Support\FakeEngine;
+use TimurTurdyev\Ariadne\Manticore\AttachShadow;
+use TimurTurdyev\Ariadne\Manticore\Publication;
+use TimurTurdyev\Ariadne\Manticore\Published;
+use TimurTurdyev\Ariadne\Manticore\PublishFailed;
+use TimurTurdyev\Ariadne\Manticore\PublishRefused;
+use TimurTurdyev\Ariadne\Manticore\SwapCopies;
+use TimurTurdyev\Ariadne\Manticore\Table;
+use TimurTurdyev\Ariadne\Tests\Support\FakeEngine;
 
 /**
  * A main table with one setting ATTACH does not carry over, and its companion.
@@ -110,7 +110,7 @@ function engine_refusal(Closure $rebuild): ?PublishRefused
  */
 function engine_rebuild_locked(ArrayStore $locks): bool
 {
-    $lock = $locks->lock('simple-search.rebuild.catalog', 60);
+    $lock = $locks->lock('ariadne.rebuild.catalog', 60);
 
     if ($lock->get()) {
         $lock->release();

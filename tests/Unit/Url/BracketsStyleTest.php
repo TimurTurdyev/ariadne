@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
-use TimurTurdyev\SimpleSearch\Query\Constraint;
-use TimurTurdyev\SimpleSearch\Query\FacetChoice;
-use TimurTurdyev\SimpleSearch\Query\Query;
-use TimurTurdyev\SimpleSearch\Query\Scope;
-use TimurTurdyev\SimpleSearch\Query\Selection;
-use TimurTurdyev\SimpleSearch\Tests\Support\InMemoryFacetDictionary;
-use TimurTurdyev\SimpleSearch\Url\QueryStringCodec;
-use TimurTurdyev\SimpleSearch\Url\UrlFormat;
-use TimurTurdyev\SimpleSearch\Url\UrlStyle;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Query\Constraint;
+use TimurTurdyev\Ariadne\Query\FacetChoice;
+use TimurTurdyev\Ariadne\Query\Query;
+use TimurTurdyev\Ariadne\Query\Scope;
+use TimurTurdyev\Ariadne\Query\Selection;
+use TimurTurdyev\Ariadne\Tests\Support\InMemoryFacetDictionary;
+use TimurTurdyev\Ariadne\Url\QueryStringCodec;
+use TimurTurdyev\Ariadne\Url\UrlFormat;
+use TimurTurdyev\Ariadne\Url\UrlStyle;
 
 function url_brackets_codec(int $priceUnit = 1): QueryStringCodec
 {

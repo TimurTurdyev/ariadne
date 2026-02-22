@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Present;
+namespace TimurTurdyev\Ariadne\Present;
 
-use TimurTurdyev\SimpleSearch\Dictionary\FacetDictionary;
-use TimurTurdyev\SimpleSearch\Query\Selection;
-use TimurTurdyev\SimpleSearch\Url\QueryStringCodec;
+use TimurTurdyev\Ariadne\Dictionary\FacetDictionary;
+use TimurTurdyev\Ariadne\Query\Selection;
+use TimurTurdyev\Ariadne\Url\QueryStringCodec;
 
 /**
  * What every panel address starts from: the path, the foreign parameters and the landing page, if any.

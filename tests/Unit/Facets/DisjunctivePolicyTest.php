@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-use TimurTurdyev\SimpleSearch\Facets\DisjunctivePolicy;
-use TimurTurdyev\SimpleSearch\Facets\FacetGroup;
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Facets\FacetOperator;
-use TimurTurdyev\SimpleSearch\Facets\FacetPanel;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
-use TimurTurdyev\SimpleSearch\Facets\ValueOrder;
-use TimurTurdyev\SimpleSearch\Query\Constraint;
-use TimurTurdyev\SimpleSearch\Query\FacetChoice;
-use TimurTurdyev\SimpleSearch\Query\Query;
-use TimurTurdyev\SimpleSearch\Query\QueryPlan;
-use TimurTurdyev\SimpleSearch\Query\Scope;
-use TimurTurdyev\SimpleSearch\Query\Selection;
-use TimurTurdyev\SimpleSearch\Results\IndexResponse;
-use TimurTurdyev\SimpleSearch\Tests\Support\InMemoryFacetDictionary;
+use TimurTurdyev\Ariadne\Facets\DisjunctivePolicy;
+use TimurTurdyev\Ariadne\Facets\FacetGroup;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetOperator;
+use TimurTurdyev\Ariadne\Facets\FacetPanel;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Facets\ValueOrder;
+use TimurTurdyev\Ariadne\Query\Constraint;
+use TimurTurdyev\Ariadne\Query\FacetChoice;
+use TimurTurdyev\Ariadne\Query\Query;
+use TimurTurdyev\Ariadne\Query\QueryPlan;
+use TimurTurdyev\Ariadne\Query\Scope;
+use TimurTurdyev\Ariadne\Query\Selection;
+use TimurTurdyev\Ariadne\Results\IndexResponse;
+use TimurTurdyev\Ariadne\Tests\Support\InMemoryFacetDictionary;
 
 function core_policy_dictionary(): InMemoryFacetDictionary
 {

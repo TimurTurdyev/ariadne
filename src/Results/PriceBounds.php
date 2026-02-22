@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Results;
+namespace TimurTurdyev\Ariadne\Results;
 
 /**
  * Price bounds of the scope for the slider, counted without the selected range.

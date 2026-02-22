@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Text;
+namespace TimurTurdyev\Ariadne\Text;
 
 /**
  * Text typed with the latin keyboard layout left on, read as the cyrillic it was meant to be.

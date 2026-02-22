@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Facets\FacetTerm;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueCount;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
-use TimurTurdyev\SimpleSearch\Facets\ValueOrder;
-use TimurTurdyev\SimpleSearch\Facets\ValueOrderPolicy;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetTerm;
+use TimurTurdyev\Ariadne\Facets\FacetValueCount;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Facets\ValueOrder;
+use TimurTurdyev\Ariadne\Facets\ValueOrderPolicy;
 
 /**
  * @param  list<array{0: string, 1: int, 2?: bool}>  $rows  label, count, selected; dictionary order as given

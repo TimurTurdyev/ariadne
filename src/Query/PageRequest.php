@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Query;
+namespace TimurTurdyev\Ariadne\Query;
 
 /**
  * Requested results page; the page size comes from the application, never from the client.

@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Present;
+namespace TimurTurdyev\Ariadne\Present;
 
 use Closure;
-use TimurTurdyev\SimpleSearch\Dictionary\FacetDictionary;
-use TimurTurdyev\SimpleSearch\Facets\FacetGroup;
-use TimurTurdyev\SimpleSearch\Facets\FacetOperator;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueCount;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
-use TimurTurdyev\SimpleSearch\Query\FacetChoice;
-use TimurTurdyev\SimpleSearch\Query\PageRequest;
-use TimurTurdyev\SimpleSearch\Query\PriceRange;
-use TimurTurdyev\SimpleSearch\Query\Query;
-use TimurTurdyev\SimpleSearch\Query\Selection;
-use TimurTurdyev\SimpleSearch\Search\SearchResult;
-use TimurTurdyev\SimpleSearch\Url\QueryStringCodec;
+use TimurTurdyev\Ariadne\Dictionary\FacetDictionary;
+use TimurTurdyev\Ariadne\Facets\FacetGroup;
+use TimurTurdyev\Ariadne\Facets\FacetOperator;
+use TimurTurdyev\Ariadne\Facets\FacetValueCount;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Query\FacetChoice;
+use TimurTurdyev\Ariadne\Query\PageRequest;
+use TimurTurdyev\Ariadne\Query\PriceRange;
+use TimurTurdyev\Ariadne\Query\Query;
+use TimurTurdyev\Ariadne\Query\Selection;
+use TimurTurdyev\Ariadne\Search\SearchResult;
+use TimurTurdyev\Ariadne\Url\QueryStringCodec;
 
 /**
  * The filter panel with ready addresses, so a browser never assembles one itself.

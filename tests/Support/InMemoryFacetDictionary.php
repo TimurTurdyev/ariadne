@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Tests\Support;
+namespace TimurTurdyev\Ariadne\Tests\Support;
 
 use LogicException;
-use TimurTurdyev\SimpleSearch\Dictionary\FacetDictionary;
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Facets\FacetTerm;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Dictionary\FacetDictionary;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetTerm;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
 
 /**
  * In-memory dictionary for tests; term ids are handed out from 1 in the order values are added.

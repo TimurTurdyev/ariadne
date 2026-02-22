@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Facets;
+namespace TimurTurdyev\Ariadne\Facets;
 
 /**
  * Dictionary term: the integer id stored in index documents, its slugs and what the panel shows.

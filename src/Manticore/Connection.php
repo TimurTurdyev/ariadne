@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Manticore;
+namespace TimurTurdyev\Ariadne\Manticore;
 
 use Closure;
 use PDO;
 use PDOException;
 use PDOStatement;
-use TimurTurdyev\SimpleSearch\Index\CatalogIndexUnavailable;
+use TimurTurdyev\Ariadne\Index\CatalogIndexUnavailable;
 
 /**
  * Lazy connection to Manticore; an unreachable engine is CatalogIndexUnavailable. Not final: tests subclass it.

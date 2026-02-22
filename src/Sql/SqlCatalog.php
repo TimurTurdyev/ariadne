@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Sql;
+namespace TimurTurdyev\Ariadne\Sql;
 
 use Closure;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
-use TimurTurdyev\SimpleSearch\Query\Constraint;
-use TimurTurdyev\SimpleSearch\Query\Query;
+use TimurTurdyev\Ariadne\Query\Constraint;
+use TimurTurdyev\Ariadne\Query\Query;
 
 /**
  * The application's tables for the SQL index; every string goes into queries as is, so none may come from a request.

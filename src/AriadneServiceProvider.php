@@ -2,30 +2,31 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch;
+namespace TimurTurdyev\Ariadne;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
-use TimurTurdyev\SimpleSearch\Dictionary\FacetDictionary;
-use TimurTurdyev\SimpleSearch\Facets\DisjunctivePolicy;
-use TimurTurdyev\SimpleSearch\Facets\ValueOrder;
-use TimurTurdyev\SimpleSearch\Index\CatalogIndex;
-use TimurTurdyev\SimpleSearch\Manticore\Connection;
-use TimurTurdyev\SimpleSearch\Present\PanelLinks;
-use TimurTurdyev\SimpleSearch\Search\SearchCatalog;
-use TimurTurdyev\SimpleSearch\Url\QueryStringCodec;
-use TimurTurdyev\SimpleSearch\Url\UrlFormat;
+use RuntimeException;
+use TimurTurdyev\Ariadne\Dictionary\FacetDictionary;
+use TimurTurdyev\Ariadne\Facets\DisjunctivePolicy;
+use TimurTurdyev\Ariadne\Facets\ValueOrder;
+use TimurTurdyev\Ariadne\Index\CatalogIndex;
+use TimurTurdyev\Ariadne\Manticore\Connection;
+use TimurTurdyev\Ariadne\Present\PanelLinks;
+use TimurTurdyev\Ariadne\Search\SearchCatalog;
+use TimurTurdyev\Ariadne\Url\QueryStringCodec;
+use TimurTurdyev\Ariadne\Url\UrlFormat;
 
 /**
  * Wires the package from its config; a class the application binds itself always wins.
  */
-final class SimpleSearchServiceProvider extends ServiceProvider
+final class AriadneServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/simple-search.php', 'simple-search');
+        $this->mergeConfigFrom(__DIR__.'/../config/ariadne.php', 'ariadne');
 
         $this->app->singletonIf(Connection::class, static fn (Container $app): Connection => Connection::fromConfig(
             self::settings($app, 'manticore'),
@@ -75,9 +76,18 @@ final class SimpleSearchServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Left as it was, the old file would be ignored and the package would quietly run on defaults.
+        if (
+            $this->app->runningInConsole()
+            && file_exists($this->app->configPath('simple-search.php'))
+            && ! file_exists($this->app->configPath('ariadne.php'))
+        ) {
+            throw new RuntimeException('Rename config/simple-search.php to config/ariadne.php: the package no longer reads the old file.');
+        }
+
         $this->publishes([
-            __DIR__.'/../config/simple-search.php' => $this->app->configPath('simple-search.php'),
-        ], 'simple-search-config');
+            __DIR__.'/../config/ariadne.php' => $this->app->configPath('ariadne.php'),
+        ], 'ariadne-config');
     }
 
     /**
@@ -85,7 +95,7 @@ final class SimpleSearchServiceProvider extends ServiceProvider
      */
     private static function settings(Container $app, string $section): array
     {
-        $settings = $app->make(Repository::class)->get('simple-search.'.$section);
+        $settings = $app->make(Repository::class)->get('ariadne.'.$section);
 
         return is_array($settings) ? array_filter($settings, is_string(...), ARRAY_FILTER_USE_KEY) : [];
     }

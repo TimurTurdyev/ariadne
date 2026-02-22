@@ -12,24 +12,24 @@ use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
-use TimurTurdyev\SimpleSearch\Facets\DisjunctivePolicy;
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Facets\FacetOperator;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
-use TimurTurdyev\SimpleSearch\Query\Constraint;
-use TimurTurdyev\SimpleSearch\Query\FacetChoice;
-use TimurTurdyev\SimpleSearch\Query\PageRequest;
-use TimurTurdyev\SimpleSearch\Query\PriceRange;
-use TimurTurdyev\SimpleSearch\Query\PriceScale;
-use TimurTurdyev\SimpleSearch\Query\Query;
-use TimurTurdyev\SimpleSearch\Query\Scope;
-use TimurTurdyev\SimpleSearch\Query\Selection;
-use TimurTurdyev\SimpleSearch\Results\Hit;
-use TimurTurdyev\SimpleSearch\Results\IndexResponse;
-use TimurTurdyev\SimpleSearch\Results\PriceBounds;
-use TimurTurdyev\SimpleSearch\Search\SearchCatalog;
-use TimurTurdyev\SimpleSearch\Tests\Support\InMemoryFacetDictionary;
-use TimurTurdyev\SimpleSearch\Tests\Support\RecordingIndex;
+use TimurTurdyev\Ariadne\Facets\DisjunctivePolicy;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetOperator;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Query\Constraint;
+use TimurTurdyev\Ariadne\Query\FacetChoice;
+use TimurTurdyev\Ariadne\Query\PageRequest;
+use TimurTurdyev\Ariadne\Query\PriceRange;
+use TimurTurdyev\Ariadne\Query\PriceScale;
+use TimurTurdyev\Ariadne\Query\Query;
+use TimurTurdyev\Ariadne\Query\Scope;
+use TimurTurdyev\Ariadne\Query\Selection;
+use TimurTurdyev\Ariadne\Results\Hit;
+use TimurTurdyev\Ariadne\Results\IndexResponse;
+use TimurTurdyev\Ariadne\Results\PriceBounds;
+use TimurTurdyev\Ariadne\Search\SearchCatalog;
+use TimurTurdyev\Ariadne\Tests\Support\InMemoryFacetDictionary;
+use TimurTurdyev\Ariadne\Tests\Support\RecordingIndex;
 
 function core_screen_scope(): Scope
 {
@@ -208,7 +208,7 @@ it('keeps the stale screen while the engine is down during a refresh', function 
             ->and($reported->getArrayCopy())->toBe([], 'the outage did not reach the error handler')
             ->and($warnings)->toHaveCount(1)
             ->and($warnings[0]['error'] ?? null)->toBe('engine down')
-            ->and($warnings[0]['key'] ?? '')->toStartWith('simple-search:screen:');
+            ->and($warnings[0]['key'] ?? '')->toStartWith('ariadne:screen:');
 
         Carbon::setTestNow('2026-11-14 10:10:00');
         $kept = $catalog($query);

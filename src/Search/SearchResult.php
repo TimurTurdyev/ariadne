@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Search;
+namespace TimurTurdyev\Ariadne\Search;
 
-use TimurTurdyev\SimpleSearch\Facets\FacetPanel;
-use TimurTurdyev\SimpleSearch\Query\Query;
-use TimurTurdyev\SimpleSearch\Results\PriceBounds;
-use TimurTurdyev\SimpleSearch\Results\ResultPage;
+use TimurTurdyev\Ariadne\Facets\FacetPanel;
+use TimurTurdyev\Ariadne\Query\Query;
+use TimurTurdyev\Ariadne\Results\PriceBounds;
+use TimurTurdyev\Ariadne\Results\ResultPage;
 
 /**
  * A ready catalog screen; prices are already in the caller's scale and must not be scaled again.

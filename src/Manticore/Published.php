@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Manticore;
+namespace TimurTurdyev\Ariadne\Manticore;
 
 /**
  * The table set readers were switched to and the document count of its main table.

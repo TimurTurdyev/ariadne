@@ -1,6 +1,6 @@
 {
-    "name": "timurturdyev/simple-search",
-    "description": "Faceted filter and search for Laravel: query plan, facet panel with ready links, URL codec, SQL facets without a search engine and zero-downtime Manticore table rebuild.",
+    "name": "timurturdyev/ariadne",
+    "description": "Faceted catalog navigation for Laravel: disjunctive facet counts, a filter panel with ready links, canonical URLs, SQL facets on your own database and zero-downtime Manticore rebuilds.",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -8,8 +8,10 @@
         "manticore",
         "search",
         "faceted-search",
+        "faceted-navigation",
         "facets",
-        "filter"
+        "filter",
+        "catalog"
     ],
     "authors": [
         {
@@ -41,12 +43,12 @@
     },
     "autoload": {
         "psr-4": {
-            "TimurTurdyev\\SimpleSearch\\": "src/"
+            "TimurTurdyev\\Ariadne\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "TimurTurdyev\\SimpleSearch\\Tests\\": "tests/"
+            "TimurTurdyev\\Ariadne\\Tests\\": "tests/"
         }
     },
     "config": {
@@ -63,7 +65,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "TimurTurdyev\\SimpleSearch\\SimpleSearchServiceProvider"
+                "TimurTurdyev\\Ariadne\\AriadneServiceProvider"
             ]
         }
     },

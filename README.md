@@ -1,4 +1,4 @@
-# simple-search
+# Ariadne
 
 Faceted filter and search for Laravel 12/13 on PHP 8.3+: a query and its plan, a filter panel with ready links, an address codec in two styles, SQL facets without a search engine and a zero-downtime rebuild of Manticore tables.
 
@@ -11,13 +11,13 @@ Two things are left out on purpose. Search cascades: synonyms, typo correction, 
 ## Installation
 
 ```bash
-composer require timurturdyev/simple-search
+composer require timurturdyev/ariadne
 ```
 
 Laravel finds the provider by itself. The config is published on demand:
 
 ```bash
-php artisan vendor:publish --tag=simple-search-config
+php artisan vendor:publish --tag=ariadne-config
 ```
 
 - `manticore`: where `Manticore\Connection` connects, from `MANTICORE_HOST`, `MANTICORE_PORT`, `MANTICORE_TIMEOUT` and `MANTICORE_READ_TIMEOUT`.
@@ -233,7 +233,7 @@ The provider binds `SearchCatalog` without a cache. To get one, bind the class y
 
 ```php
 use Psr\Log\LoggerInterface;
-use TimurTurdyev\SimpleSearch\Facets\ValueOrder;
+use TimurTurdyev\Ariadne\Facets\ValueOrder;
 
 $this->app->scoped(SearchCatalog::class, static fn ($app): SearchCatalog => new SearchCatalog(
     $app->make(CatalogIndex::class),
@@ -241,8 +241,8 @@ $this->app->scoped(SearchCatalog::class, static fn ($app): SearchCatalog => new 
     $app->make(DisjunctivePolicy::class),
     cache: $app->make('cache')->store(),
     log: $app->make(LoggerInterface::class),
-    order: ValueOrder::from(config('simple-search.screen.order')),
-    filteredBounds: (bool) config('simple-search.screen.filtered_bounds'),
+    order: ValueOrder::from(config('ariadne.screen.order')),
+    filteredBounds: (bool) config('ariadne.screen.filtered_bounds'),
 ));
 
 $screen = $catalog($query, new PriceScale(1.22), ['region:'.$region->id]);
@@ -317,9 +317,9 @@ composer lint
 Feature tests run on SQLite in memory, the Manticore tests on a double of the engine. The same writes and publications run on a real engine when you point at one:
 
 ```bash
-SIMPLE_SEARCH_MANTICORE=127.0.0.1:9306 vendor/bin/pest tests/Feature/Manticore
+ARIADNE_MANTICORE=127.0.0.1:9306 vendor/bin/pest tests/Feature/Manticore
 ```
 
-Without the variable these cases are skipped. They drop every table whose name starts with `simple_search_it_`, before and after each case.
+Without the variable these cases are skipped. They drop every table whose name starts with `ariadne_it_`, before and after each case.
 
 MIT license.

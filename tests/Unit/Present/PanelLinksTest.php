@@ -2,34 +2,34 @@
 
 declare(strict_types=1);
 
-use TimurTurdyev\SimpleSearch\Facets\DisjunctivePolicy;
-use TimurTurdyev\SimpleSearch\Facets\FacetGroup;
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Facets\FacetOperator;
-use TimurTurdyev\SimpleSearch\Facets\FacetPanel;
-use TimurTurdyev\SimpleSearch\Facets\FacetTerm;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueCount;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
-use TimurTurdyev\SimpleSearch\Present\LinkBase;
-use TimurTurdyev\SimpleSearch\Present\PanelLinks;
-use TimurTurdyev\SimpleSearch\Query\Constraint;
-use TimurTurdyev\SimpleSearch\Query\FacetChoice;
-use TimurTurdyev\SimpleSearch\Query\Need;
-use TimurTurdyev\SimpleSearch\Query\PageRequest;
-use TimurTurdyev\SimpleSearch\Query\PriceRange;
-use TimurTurdyev\SimpleSearch\Query\Query;
-use TimurTurdyev\SimpleSearch\Query\Scope;
-use TimurTurdyev\SimpleSearch\Query\Selection;
-use TimurTurdyev\SimpleSearch\Results\IndexResponse;
-use TimurTurdyev\SimpleSearch\Results\PriceBounds;
-use TimurTurdyev\SimpleSearch\Results\ResultPage;
-use TimurTurdyev\SimpleSearch\Search\SearchCatalog;
-use TimurTurdyev\SimpleSearch\Search\SearchResult;
-use TimurTurdyev\SimpleSearch\Tests\Support\InMemoryFacetDictionary;
-use TimurTurdyev\SimpleSearch\Tests\Support\RecordingIndex;
-use TimurTurdyev\SimpleSearch\Url\QueryStringCodec;
-use TimurTurdyev\SimpleSearch\Url\UrlFormat;
-use TimurTurdyev\SimpleSearch\Url\UrlStyle;
+use TimurTurdyev\Ariadne\Facets\DisjunctivePolicy;
+use TimurTurdyev\Ariadne\Facets\FacetGroup;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetOperator;
+use TimurTurdyev\Ariadne\Facets\FacetPanel;
+use TimurTurdyev\Ariadne\Facets\FacetTerm;
+use TimurTurdyev\Ariadne\Facets\FacetValueCount;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Present\LinkBase;
+use TimurTurdyev\Ariadne\Present\PanelLinks;
+use TimurTurdyev\Ariadne\Query\Constraint;
+use TimurTurdyev\Ariadne\Query\FacetChoice;
+use TimurTurdyev\Ariadne\Query\Need;
+use TimurTurdyev\Ariadne\Query\PageRequest;
+use TimurTurdyev\Ariadne\Query\PriceRange;
+use TimurTurdyev\Ariadne\Query\Query;
+use TimurTurdyev\Ariadne\Query\Scope;
+use TimurTurdyev\Ariadne\Query\Selection;
+use TimurTurdyev\Ariadne\Results\IndexResponse;
+use TimurTurdyev\Ariadne\Results\PriceBounds;
+use TimurTurdyev\Ariadne\Results\ResultPage;
+use TimurTurdyev\Ariadne\Search\SearchCatalog;
+use TimurTurdyev\Ariadne\Search\SearchResult;
+use TimurTurdyev\Ariadne\Tests\Support\InMemoryFacetDictionary;
+use TimurTurdyev\Ariadne\Tests\Support\RecordingIndex;
+use TimurTurdyev\Ariadne\Url\QueryStringCodec;
+use TimurTurdyev\Ariadne\Url\UrlFormat;
+use TimurTurdyev\Ariadne\Url\UrlStyle;
 
 function links_comma_codec(): QueryStringCodec
 {

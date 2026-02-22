@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Manticore;
+namespace TimurTurdyev\Ariadne\Manticore;
 
 use Closure;
 

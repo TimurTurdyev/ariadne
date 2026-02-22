@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Sql;
+namespace TimurTurdyev\Ariadne\Sql;
 
 use Illuminate\Database\ConnectionInterface;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use TimurTurdyev\SimpleSearch\Dictionary\FacetDictionary;
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Facets\FacetTerm;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Dictionary\FacetDictionary;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetTerm;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
 
 /**
  * The dictionary read from the flat facet table, one query per instance and no cache; term ids mean something only within the instance.

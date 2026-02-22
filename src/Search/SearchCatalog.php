@@ -2,38 +2,38 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Search;
+namespace TimurTurdyev\Ariadne\Search;
 
 use Closure;
 use Illuminate\Cache\Repository;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
-use TimurTurdyev\SimpleSearch\Dictionary\FacetDictionary;
-use TimurTurdyev\SimpleSearch\Facets\DisjunctivePolicy;
-use TimurTurdyev\SimpleSearch\Facets\FacetGroup;
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Facets\FacetOperator;
-use TimurTurdyev\SimpleSearch\Facets\FacetPanel;
-use TimurTurdyev\SimpleSearch\Facets\FacetTerm;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueCount;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
-use TimurTurdyev\SimpleSearch\Facets\ValueOrder;
-use TimurTurdyev\SimpleSearch\Index\CatalogIndex;
-use TimurTurdyev\SimpleSearch\Index\CatalogIndexUnavailable;
-use TimurTurdyev\SimpleSearch\Query\Constraint;
-use TimurTurdyev\SimpleSearch\Query\FacetChoice;
-use TimurTurdyev\SimpleSearch\Query\Need;
-use TimurTurdyev\SimpleSearch\Query\PageRequest;
-use TimurTurdyev\SimpleSearch\Query\PriceRange;
-use TimurTurdyev\SimpleSearch\Query\PriceScale;
-use TimurTurdyev\SimpleSearch\Query\Query;
-use TimurTurdyev\SimpleSearch\Query\QueryPlan;
-use TimurTurdyev\SimpleSearch\Query\Scope;
-use TimurTurdyev\SimpleSearch\Query\Selection;
-use TimurTurdyev\SimpleSearch\Results\Hit;
-use TimurTurdyev\SimpleSearch\Results\PriceBounds;
-use TimurTurdyev\SimpleSearch\Results\ResultPage;
+use TimurTurdyev\Ariadne\Dictionary\FacetDictionary;
+use TimurTurdyev\Ariadne\Facets\DisjunctivePolicy;
+use TimurTurdyev\Ariadne\Facets\FacetGroup;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetOperator;
+use TimurTurdyev\Ariadne\Facets\FacetPanel;
+use TimurTurdyev\Ariadne\Facets\FacetTerm;
+use TimurTurdyev\Ariadne\Facets\FacetValueCount;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Facets\ValueOrder;
+use TimurTurdyev\Ariadne\Index\CatalogIndex;
+use TimurTurdyev\Ariadne\Index\CatalogIndexUnavailable;
+use TimurTurdyev\Ariadne\Query\Constraint;
+use TimurTurdyev\Ariadne\Query\FacetChoice;
+use TimurTurdyev\Ariadne\Query\Need;
+use TimurTurdyev\Ariadne\Query\PageRequest;
+use TimurTurdyev\Ariadne\Query\PriceRange;
+use TimurTurdyev\Ariadne\Query\PriceScale;
+use TimurTurdyev\Ariadne\Query\Query;
+use TimurTurdyev\Ariadne\Query\QueryPlan;
+use TimurTurdyev\Ariadne\Query\Scope;
+use TimurTurdyev\Ariadne\Query\Selection;
+use TimurTurdyev\Ariadne\Results\Hit;
+use TimurTurdyev\Ariadne\Results\PriceBounds;
+use TimurTurdyev\Ariadne\Results\ResultPage;
 
 /**
  * One catalog screen: the user's query in, results with the filter panel out.
@@ -213,7 +213,7 @@ final class SearchCatalog
         $signature = implode('|', [$query->signature(), $scale->signature(), ...$parts]);
 
         // The version guards the stored shape: an entry written by other code is never read.
-        return 'simple-search:screen:v2:'.hash('xxh3', $signature);
+        return 'ariadne:screen:v2:'.hash('xxh3', $signature);
     }
 
     /**

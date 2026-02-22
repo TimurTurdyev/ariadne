@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 use Illuminate\Cache\ArrayStore;
 use PHPUnit\Framework\Assert;
-use TimurTurdyev\SimpleSearch\Index\CatalogIndexUnavailable;
-use TimurTurdyev\SimpleSearch\Manticore\AttachShadow;
-use TimurTurdyev\SimpleSearch\Manticore\Connection;
-use TimurTurdyev\SimpleSearch\Manticore\SwapCopies;
-use TimurTurdyev\SimpleSearch\Manticore\Table;
-use TimurTurdyev\SimpleSearch\Manticore\Writer;
+use TimurTurdyev\Ariadne\Index\CatalogIndexUnavailable;
+use TimurTurdyev\Ariadne\Manticore\AttachShadow;
+use TimurTurdyev\Ariadne\Manticore\Connection;
+use TimurTurdyev\Ariadne\Manticore\SwapCopies;
+use TimurTurdyev\Ariadne\Manticore\Table;
+use TimurTurdyev\Ariadne\Manticore\Writer;
 
 function engine_live_address(): ?string
 {
-    $address = getenv('SIMPLE_SEARCH_MANTICORE');
+    $address = getenv('ARIADNE_MANTICORE');
 
     return is_string($address) && $address !== '' ? $address : null;
 }
@@ -35,7 +35,7 @@ function engine_live_tables(Connection $engine): array
     foreach ($engine->select('SHOW TABLES') as $row) {
         $table = reset($row);
 
-        if (is_string($table) && str_starts_with($table, 'simple_search_it_')) {
+        if (is_string($table) && str_starts_with($table, 'ariadne_it_')) {
             $tables[] = $table;
         }
     }
@@ -146,7 +146,7 @@ function engine_live_pointer(): ArrayObject
 
 it('writes documents and reads them back unchanged', function (): void {
     engine_live_case(function (Connection $engine): void {
-        $name = 'simple_search_it_writer';
+        $name = 'ariadne_it_writer';
         $table = new Table([
             'title' => 'text', 'code' => 'string attribute', 'price' => 'bigint', 'sections' => 'multi', 'width' => 'float',
         ]);
@@ -170,11 +170,11 @@ it('writes documents and reads them back unchanged', function (): void {
             ->and(array_map(static fn (array $row): float => (float) reset($row), $widths))->toBe([0.75, 2.0, 1.5])
             ->and(engine_live_drift($engine, $table, $name))->toBe([]);
     });
-})->skip(engine_live_address() === null, 'SIMPLE_SEARCH_MANTICORE is not set');
+})->skip(engine_live_address() === null, 'ARIADNE_MANTICORE is not set');
 
 it('publishes into the copies a -> b -> a', function (): void {
     engine_live_case(function (Connection $engine): void {
-        $name = 'simple_search_it_swap';
+        $name = 'ariadne_it_swap';
         $tables = engine_live_set();
         $pointer = engine_live_pointer();
         $swap = new SwapCopies(
@@ -199,11 +199,11 @@ it('publishes into the copies a -> b -> a', function (): void {
             // The previous copy stays for the queries that started on it.
             ->and(engine_live_count($engine, $name.'_b'))->toBe(2);
     });
-})->skip(engine_live_address() === null, 'SIMPLE_SEARCH_MANTICORE is not set');
+})->skip(engine_live_address() === null, 'ARIADNE_MANTICORE is not set');
 
 it('attaches a rebuilt shadow to the live table and leaves no shadow behind', function (): void {
     engine_live_case(function (Connection $engine): void {
-        $name = 'simple_search_it_attach';
+        $name = 'ariadne_it_attach';
         $tables = engine_live_set();
         $attach = new AttachShadow($engine, new ArrayStore);
 
@@ -223,11 +223,11 @@ it('attaches a rebuilt shadow to the live table and leaves no shadow behind', fu
             ->and(engine_live_select($engine, "SELECT id FROM {$name} WHERE MATCH('sofa') ORDER BY id ASC"))
             ->toBe([['id' => '1'], ['id' => '2']]);
     });
-})->skip(engine_live_address() === null, 'SIMPLE_SEARCH_MANTICORE is not set');
+})->skip(engine_live_address() === null, 'ARIADNE_MANTICORE is not set');
 
 it('switches the live table to another schema together with the data', function (): void {
     engine_live_case(function (Connection $engine): void {
-        $name = 'simple_search_it_schema';
+        $name = 'ariadne_it_schema';
         $attach = new AttachShadow($engine, new ArrayStore);
         $old = [new Table(
             ['title' => 'text', 'price' => 'int'],
@@ -260,11 +260,11 @@ it('switches the live table to another schema together with the data', function 
             ->and(engine_live_select($engine, "SELECT id FROM {$name} WHERE MATCH('sofas') ORDER BY id ASC"))
             ->toBe([['id' => '1'], ['id' => '2']]);
     });
-})->skip(engine_live_address() === null, 'SIMPLE_SEARCH_MANTICORE is not set');
+})->skip(engine_live_address() === null, 'ARIADNE_MANTICORE is not set');
 
 it('keeps a regexp filter with backslashes and reports it once the schema drops it', function (): void {
     engine_live_case(function (Connection $engine): void {
-        $name = 'simple_search_it_filter';
+        $name = 'ariadne_it_filter';
         $attach = new AttachShadow($engine, new ArrayStore);
         $filtered = [new Table(['title' => 'text', 'price' => 'int'], ['regexp_filter' => '(\\d+)x(\\d+) => \\1 x \\2'])];
         $plain = [new Table(['title' => 'text', 'price' => 'int'])];
@@ -285,11 +285,11 @@ it('keeps a regexp filter with backslashes and reports it once the schema drops 
         expect(engine_live_drift($engine, $plain[0], $name))
             ->toBe(["unexpected setting regexp_filter='(\\\\d+)x(\\\\d+) => \\\\1 x \\\\2'"]);
     });
-})->skip(engine_live_address() === null, 'SIMPLE_SEARCH_MANTICORE is not set');
+})->skip(engine_live_address() === null, 'ARIADNE_MANTICORE is not set');
 
 it('binds integers as numbers', function (): void {
     engine_live_case(function (Connection $engine): void {
-        $name = 'simple_search_it_bind';
+        $name = 'ariadne_it_bind';
         $table = new Table(['title' => 'text', 'price' => 'int']);
         $engine->execute($table->create($name));
         (new Writer($engine))->insert($name, ['id', 'title', 'price'], [
@@ -303,7 +303,7 @@ it('binds integers as numbers', function (): void {
 
         expect(array_map(static fn (array $row): string => is_scalar($row['id']) ? (string) $row['id'] : '', $rows))->toBe(['2', '3']);
     });
-})->skip(engine_live_address() === null, 'SIMPLE_SEARCH_MANTICORE is not set');
+})->skip(engine_live_address() === null, 'ARIADNE_MANTICORE is not set');
 
 it('opens the connection again after the engine closed it', function (): void {
     $engine = engine_live_connection();
@@ -311,7 +311,7 @@ it('opens the connection again after the engine closed it', function (): void {
     sleep(2);
 
     expect(engine_live_select($engine, 'SELECT 1 AS one'))->toBe([['one' => '1']]);
-})->skip(engine_live_address() === null, 'SIMPLE_SEARCH_MANTICORE is not set');
+})->skip(engine_live_address() === null, 'ARIADNE_MANTICORE is not set');
 
 it('gives up on an answer past the read timeout without a retry and keeps the process setting', function (): void {
     $engine = engine_live_connection(readTimeout: 1);
@@ -329,4 +329,4 @@ it('gives up on an answer past the read timeout without a retry and keeps the pr
         ->and(microtime(true) - $started)->toBeLessThan(1.8)
         ->and(ini_get('mysqlnd.net_read_timeout'))->toBe($setting)
         ->and(engine_live_select($engine, 'SELECT 1 AS one'))->toBe([['one' => '1']]);
-})->skip(engine_live_address() === null, 'SIMPLE_SEARCH_MANTICORE is not set');
+})->skip(engine_live_address() === null, 'ARIADNE_MANTICORE is not set');

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Query;
+namespace TimurTurdyev\Ariadne\Query;
 
 /**
  * Selected price range: a missing bound is not set, a reversed range is swapped.

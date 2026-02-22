@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Query;
+namespace TimurTurdyev\Ariadne\Query;
 
 /**
  * A scope restriction on one field; an empty list matches nothing.

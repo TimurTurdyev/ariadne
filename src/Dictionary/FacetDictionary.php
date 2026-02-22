@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Dictionary;
+namespace TimurTurdyev\Ariadne\Dictionary;
 
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Facets\FacetTerm;
-use TimurTurdyev\SimpleSearch\Facets\FacetValueId;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetTerm;
+use TimurTurdyev\Ariadne\Facets\FacetValueId;
 
 /**
  * Term dictionary: where public slugs, integer ids in the index and human labels meet.

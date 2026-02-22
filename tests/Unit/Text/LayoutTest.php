@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use TimurTurdyev\SimpleSearch\Text\Layout;
+use TimurTurdyev\Ariadne\Text\Layout;
 
 it('reads text typed in the latin layout as cyrillic', function (): void {
     expect(Layout::toCyrillic('rjv,bytpjy'))->toBe('комбинезон')

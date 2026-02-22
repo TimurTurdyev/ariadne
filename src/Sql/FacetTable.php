@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Sql;
+namespace TimurTurdyev\Ariadne\Sql;
 
-use TimurTurdyev\SimpleSearch\Facets\KeyStyle;
+use TimurTurdyev\Ariadne\Facets\KeyStyle;
 
 /**
  * The flat facet table: one row per filter value of a document, in the fixed columns facet, value, label and sort_value.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Url;
+namespace TimurTurdyev\Ariadne\Url;
 
 /**
  * The two public shapes of a catalog query string.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Manticore;
+namespace TimurTurdyev\Ariadne\Manticore;
 
 /**
  * The schema of one engine table as data. A reserved column name (order, limit) is declared in backticks.

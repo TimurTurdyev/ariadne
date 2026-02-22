@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Facets;
+namespace TimurTurdyev\Ariadne\Facets;
 
 use Collator;
 

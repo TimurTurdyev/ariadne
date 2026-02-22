@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Query;
+namespace TimurTurdyev\Ariadne\Query;
 
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetId;
 
 /**
  * One intent of the plan with its own Query, so an adapter never guesses which filters to drop.

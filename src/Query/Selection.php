@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Query;
+namespace TimurTurdyev\Ariadne\Query;
 
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
+use TimurTurdyev\Ariadne\Facets\FacetId;
 
 /**
  * All facet choices. Immutable: every change returns a copy.

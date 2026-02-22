@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Tests\Support;
+namespace TimurTurdyev\Ariadne\Tests\Support;
 
 use LogicException;
 use PDOException;
 use PDOStatement;
-use TimurTurdyev\SimpleSearch\Manticore\Connection;
+use TimurTurdyev\Ariadne\Manticore\Connection;
 
 /**
  * Engine double: records every statement and answers the reads of a publication from canned tables.

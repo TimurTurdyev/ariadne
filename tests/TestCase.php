@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Tests;
+namespace TimurTurdyev\Ariadne\Tests;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use TimurTurdyev\SimpleSearch\SimpleSearchServiceProvider;
+use TimurTurdyev\Ariadne\AriadneServiceProvider;
 
 abstract class TestCase extends Orchestra
 {
@@ -18,7 +18,7 @@ abstract class TestCase extends Orchestra
      */
     protected function getPackageProviders($app): array
     {
-        return [SimpleSearchServiceProvider::class];
+        return [AriadneServiceProvider::class];
     }
 
     /**

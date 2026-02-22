@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use TimurTurdyev\SimpleSearch\Manticore\Table;
+use TimurTurdyev\Ariadne\Manticore\Table;
 
 /**
  * One column of every type the comparison has to translate.

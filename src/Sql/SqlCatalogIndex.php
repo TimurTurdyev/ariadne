@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Sql;
+namespace TimurTurdyev\Ariadne\Sql;
 
 use Closure;
 use Illuminate\Contracts\Database\Query\Expression;
@@ -11,14 +11,14 @@ use Illuminate\Database\Grammar;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Str;
 use LogicException;
-use TimurTurdyev\SimpleSearch\Facets\FacetId;
-use TimurTurdyev\SimpleSearch\Index\CatalogIndex;
-use TimurTurdyev\SimpleSearch\Query\IntentKind;
-use TimurTurdyev\SimpleSearch\Query\Query;
-use TimurTurdyev\SimpleSearch\Query\QueryPlan;
-use TimurTurdyev\SimpleSearch\Results\Hit;
-use TimurTurdyev\SimpleSearch\Results\IndexResponse;
-use TimurTurdyev\SimpleSearch\Results\PriceBounds;
+use TimurTurdyev\Ariadne\Facets\FacetId;
+use TimurTurdyev\Ariadne\Index\CatalogIndex;
+use TimurTurdyev\Ariadne\Query\IntentKind;
+use TimurTurdyev\Ariadne\Query\Query;
+use TimurTurdyev\Ariadne\Query\QueryPlan;
+use TimurTurdyev\Ariadne\Results\Hit;
+use TimurTurdyev\Ariadne\Results\IndexResponse;
+use TimurTurdyev\Ariadne\Results\PriceBounds;
 
 /**
  * The catalog index on plain SQL over a flat facet table; the query text is not run here.

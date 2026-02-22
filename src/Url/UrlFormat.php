@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Url;
+namespace TimurTurdyev\Ariadne\Url;
 
 use InvalidArgumentException;
-use TimurTurdyev\SimpleSearch\Facets\KeyStyle;
+use TimurTurdyev\Ariadne\Facets\KeyStyle;
 
 /**
  * How an application writes its catalog query string: style, price unit and accepted sort slugs.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Manticore;
+namespace TimurTurdyev\Ariadne\Manticore;
 
 use Closure;
 use Illuminate\Contracts\Cache\LockProvider;
@@ -23,7 +23,7 @@ final class SwapCopies implements Publication
         private readonly LockProvider $locks,
         private readonly Closure $read,
         private readonly Closure $write,
-        private readonly string $lockPrefix = 'simple-search.rebuild.',
+        private readonly string $lockPrefix = 'ariadne.rebuild.',
         private readonly int $lockSeconds = 600,
         private readonly int $waitSeconds = 300,
     ) {

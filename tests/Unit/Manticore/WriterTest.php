@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use TimurTurdyev\SimpleSearch\Manticore\Writer;
-use TimurTurdyev\SimpleSearch\Tests\Support\FakeEngine;
+use TimurTurdyev\Ariadne\Manticore\Writer;
+use TimurTurdyev\Ariadne\Tests\Support\FakeEngine;
 
 /**
  * @return Generator<int, array<string, int|string>>

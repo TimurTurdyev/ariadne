@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Index;
+namespace TimurTurdyev\Ariadne\Index;
 
 use RuntimeException;
 

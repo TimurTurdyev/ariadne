@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TimurTurdyev\SimpleSearch\Manticore;
+namespace TimurTurdyev\Ariadne\Manticore;
 
 use Closure;
 use Illuminate\Contracts\Cache\LockProvider;
@@ -20,7 +20,7 @@ final class AttachShadow implements Publication
         private readonly Connection $engine,
         private readonly LockProvider $locks,
         private readonly string $shadow = '_build',
-        private readonly string $lockPrefix = 'simple-search.rebuild.',
+        private readonly string $lockPrefix = 'ariadne.rebuild.',
         private readonly int $lockSeconds = 3600,
         private readonly int $waitSeconds = 0,
     ) {
