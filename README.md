@@ -12,6 +12,8 @@ Laravel 12 or 13 on PHP 8.3+:
 composer require timurturdyev/ariadne
 ```
 
+Coming from 0.1, published under the previous name: [UPGRADE.md](https://github.com/TimurTurdyev/ariadne/blob/main/UPGRADE.md).
+
 Laravel finds the provider by itself. The config is published on demand:
 
 ```bash
