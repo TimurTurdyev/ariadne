@@ -190,13 +190,15 @@ final class PanelLinks
     private function paging(SearchResult $result, Query $query, LinkBase $base): array
     {
         $page = $result->page->page;
+        $last = max(1, $result->page->pages());
         $at = fn (int $number): string => $this->address($query->withPage(new PageRequest($number, $query->page->perPage)), $base);
 
         return [
             'first' => $at(1),
-            'prev' => $page > 1 ? $at($page - 1) : null,
+            // Past the end, prev leads to the last page rather than to another empty one.
+            'prev' => $page > 1 ? $at(min($page - 1, $last)) : null,
             // PageRequest caps the page, so a link past the cap would lead back here.
-            'next' => $page < $result->page->pages() && $page < PageRequest::MAX_PAGE ? $at($page + 1) : null,
+            'next' => $page < $last && $page < PageRequest::MAX_PAGE ? $at($page + 1) : null,
             'template' => $this->address($query, $base, page: true),
         ];
     }

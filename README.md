@@ -354,7 +354,7 @@ The view `catalog.section` of the controller above comes down to this:
 @if ($panel['paging']['next']) <a href="{{ $panel['paging']['next'] }}">Next</a> @endif
 ```
 
-A change of the selection starts paging over, and the first page goes without `page`. On the deepest page an address can reach (`PageRequest::MAX_PAGE`, 500) there is no `next`. `$links->href($query, $base)` is the address of any query, on its first page. For a panel answered to a `Need::Panel` query pass the buyer's query third, or the addresses lose their sort.
+A change of the selection starts paging over, and the first page goes without `page`. On the deepest page an address can reach (`PageRequest::MAX_PAGE`, 500) there is no `next`. On a page past the last one, `prev` leads to the last page. `$links->href($query, $base)` is the address of any query, on its first page. For a panel answered to a `Need::Panel` query pass the buyer's query third, or the addresses lose their sort.
 
 `LinkBase` brings the path to one leading slash itself, so `getPathInfo()` can go in as it is. `only()` keeps the named foreign parameters, `$base->without('sale')` drops one. The foreign part of a link is at most `LinkBase::MAX_FOREIGN_LENGTH`, 1024 encoded bytes: a parameter that does not fit is left out of the links. A foreign array does not get into `comma` links, and in `brackets` a keyed array (`filter[stock]=1`) comes back as a list, `filter[]=1`.
 
