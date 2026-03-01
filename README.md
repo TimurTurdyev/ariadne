@@ -1,6 +1,9 @@
 # Ariadne
 
-Faceted catalog navigation for Laravel
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/TimurTurdyev/ariadne/main/art/cover-dark.png">
+  <img src="https://raw.githubusercontent.com/TimurTurdyev/ariadne/main/art/cover.png" alt="Faceted catalog navigation for Laravel" width="1280">
+</picture>
 
 Ariadne gave Theseus a thread to find his way through the labyrinth. This package gives shoppers the thread through a catalog: every turn shows how many products lie behind it, and any choice can be undone.
 
