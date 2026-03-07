@@ -4,6 +4,29 @@ declare(strict_types=1);
 
 return [
 
+    // Catalogs described by one class each: key => definition class, or an array with "definition" and options.
+    // The key names the storage: it goes into table names and cache keys; the class may be renamed.
+    'catalogs' => [
+    ],
+
+    'tables' => [
+        // Prefix of the facet tables; the generated migration writes the names out.
+        'prefix' => 'facet_',
+    ],
+
+    'sync' => [
+        // Facet rows follow model saves; false for imports, seeders and tests that do not need them.
+        'enabled' => env('ARIADNE_SYNC', true),
+
+        // Cache store of the sync and rebuild locks, shared by every server; null is the default store.
+        'lock_store' => null,
+    ],
+
+    'rebuild' => [
+        // Longer than the longest rebuild: its lock and its building flag run out after this.
+        'lock_seconds' => 3600,
+    ],
+
     // Where Manticore\Connection connects. The table name stays with the application.
     'manticore' => [
         'host' => env('MANTICORE_HOST', '127.0.0.1'),

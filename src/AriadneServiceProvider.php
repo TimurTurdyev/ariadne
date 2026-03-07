@@ -6,9 +6,18 @@ namespace TimurTurdyev\Ariadne;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\Events\TransactionRolledBack;
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use TimurTurdyev\Ariadne\Catalog\Catalogs;
+use TimurTurdyev\Ariadne\Catalog\Console\CheckCommand;
+use TimurTurdyev\Ariadne\Catalog\Console\InstallCommand;
+use TimurTurdyev\Ariadne\Catalog\Console\OptimizeCommand;
+use TimurTurdyev\Ariadne\Catalog\Console\RebuildCommand;
+use TimurTurdyev\Ariadne\Catalog\Console\SyncCommand;
+use TimurTurdyev\Ariadne\Catalog\Listener;
 use TimurTurdyev\Ariadne\Dictionary\FacetDictionary;
 use TimurTurdyev\Ariadne\Facets\DisjunctivePolicy;
 use TimurTurdyev\Ariadne\Facets\ValueOrder;
@@ -72,6 +81,13 @@ final class AriadneServiceProvider extends ServiceProvider
             $app->make(QueryStringCodec::class),
             $app->make(FacetDictionary::class),
         ));
+
+        $this->app->singletonIf(Catalogs::class, static fn (Container $app): Catalogs => new Catalogs($app, $app->make(Repository::class)));
+        // Scoped: the marks a request counted must not leak into the next one of a worker.
+        $this->app->scopedIf(Listener::class, static fn (Container $app): Listener => new Listener(
+            $app->make(Catalogs::class),
+            $app->make(LoggerInterface::class),
+        ));
     }
 
     public function boot(): void
@@ -88,6 +104,40 @@ final class AriadneServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/ariadne.php' => $this->app->configPath('ariadne.php'),
         ], 'ariadne-config');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([InstallCommand::class, RebuildCommand::class, SyncCommand::class, CheckCommand::class, OptimizeCommand::class]);
+            $this->optimizes(optimize: 'ariadne:optimize');
+        }
+
+        $this->listenForWrites();
+    }
+
+    /**
+     * Writes of models are watched only when some catalog is declared and sync is on.
+     */
+    private function listenForWrites(): void
+    {
+        $config = $this->app->make(Repository::class);
+        $catalogs = $config->get('ariadne.catalogs');
+
+        if (! is_array($catalogs) || $catalogs === [] || $config->get('ariadne.sync.enabled', true) === false) {
+            return;
+        }
+
+        $events = $this->app->make(Dispatcher::class);
+        $app = $this->app;
+
+        // Write events only: eloquent.* would also catch eloquent.retrieved, sent for every model read.
+        foreach (Listener::EVENTS as $event) {
+            $events->listen("eloquent.{$event}: *", static function (string $name, array $payload) use ($app): void {
+                $app->make(Listener::class)->handle($name, $payload);
+            });
+        }
+
+        $events->listen(TransactionRolledBack::class, static function () use ($app): void {
+            $app->make(Listener::class)->rolledBack();
+        });
     }
 
     /**

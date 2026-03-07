@@ -25,8 +25,12 @@
         "ext-mbstring": "*",
         "ext-pdo": "*",
         "illuminate/cache": "^12.0|^13.0",
+        "illuminate/console": "^12.0|^13.0",
         "illuminate/contracts": "^12.0|^13.0",
         "illuminate/database": "^12.0|^13.0",
+        "illuminate/filesystem": "^12.0|^13.0",
+        "illuminate/http": "^12.0|^13.0",
+        "illuminate/pagination": "^12.0|^13.0",
         "illuminate/support": "^12.0|^13.0",
         "psr/log": "^3.0"
     },

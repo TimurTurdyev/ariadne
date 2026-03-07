@@ -1,0 +1,97 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{{{connection}}
+    /**
+     * Facet tables of timurturdyev/ariadne. They hold derived data: after a rollback, ariadne:rebuild brings it back.
+     */
+    public function up(): void
+    {
+        $schema = Schema::connection($this->getConnection());
+        // MySQL and MariaDB compare 'Acme' and 'acme' as equal unless the column is binary.
+        $binary = in_array($schema->getConnection()->getDriverName(), ['mysql', 'mariadb'], true);
+
+        $schema->create('{{catalogs}}', function (Blueprint $table): void {
+            $table->string('catalog', 24)->primary();
+            $table->unsignedBigInteger('generation')->default(0);
+            $table->unsignedBigInteger('previous_generation')->nullable();
+            $table->unsignedBigInteger('flipped_at')->nullable();
+            $table->unsignedBigInteger('building_generation')->nullable();
+            $table->unsignedBigInteger('building_until')->nullable();
+            $table->unsignedBigInteger('rebuild_requested_at')->nullable();
+            $table->unsignedBigInteger('version')->default(0);
+            $table->unsignedBigInteger('document_total')->default(0);
+            $table->unsignedBigInteger('row_total')->default(0);
+            $table->text('problems')->nullable();
+            $table->unsignedBigInteger('built_at')->nullable();
+            $table->double('build_seconds')->nullable();
+            $table->string('serving', 16)->nullable();
+            $table->string('engine_table', 64)->nullable();
+            $table->unsignedBigInteger('engine_values')->nullable();
+        });
+
+        $schema->create('{{groups}}', function (Blueprint $table) use ($binary): void {
+            $table->id();
+            $table->string('catalog', 24);
+            $slug = $table->string('slug', 64);
+            $table->string('title');
+            $table->integer('position')->nullable();
+            $table->string('widget', 16)->default('list');
+            $table->string('kind', 16)->default('list');
+            $table->boolean('multiple')->default(true);
+            $table->string('unit', 32)->nullable();
+            $table->smallInteger('decimals')->default(0);
+            $table->string('producer', 32)->nullable();
+            $table->boolean('active')->default(true);
+            $table->unique(['catalog', 'slug']);
+
+            if ($binary) {
+                $slug->collation('utf8mb4_bin');
+            }
+        });
+
+        $schema->create('{{values}}', function (Blueprint $table) use ($binary): void {
+            $table->id();
+            $table->unsignedBigInteger('group_id');
+            $value = $table->string('value', 96);
+            $table->string('label');
+            $table->integer('sort')->default(0);
+            $table->string('image', 1024)->nullable();
+            $table->unsignedBigInteger('seen')->nullable();
+            $table->unique(['group_id', 'value']);
+
+            if ($binary) {
+                $value->collation('utf8mb4_bin');
+            }
+        });
+
+        $schema->create('{{changes}}', function (Blueprint $table): void {
+            $table->id();
+            $table->string('catalog', 24);
+            $table->unsignedBigInteger('document_id');
+            $table->unsignedBigInteger('created_at');
+            $table->index(['catalog', 'id']);
+        });
+    }
+
+    public function down(): void
+    {
+        $schema = Schema::connection($this->getConnection());
+
+        // Generation tables come from rebuilds, not from this migration; left behind, they would outlive the pointer.
+        foreach ($schema->getTableListing($schema->getCurrentSchemaListing(), false) as $table) {
+            if (preg_match('/^{{rows}}[a-z][a-z0-9_]*_[0-9]+$/', $table) === 1) {
+                $schema->drop($table);
+            }
+        }
+
+        $schema->dropIfExists('{{changes}}');
+        $schema->dropIfExists('{{values}}');
+        $schema->dropIfExists('{{groups}}');
+        $schema->dropIfExists('{{catalogs}}');
+    }
+};

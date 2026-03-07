@@ -1,0 +1,39 @@
+<?php
+
+namespace {{namespace}};
+
+use {{model}};
+use Illuminate\Database\Eloquent\Builder;
+use TimurTurdyev\Ariadne\Catalog\CatalogDefinition;
+use TimurTurdyev\Ariadne\Catalog\Facet;
+use TimurTurdyev\Ariadne\Catalog\Sort;
+
+/**
+ * The {{catalog}} catalog: what is listed, how it is filtered and how it is sorted.
+ *
+ * Add #[Price('price')] when the model has a price column, #[Fields(...)] for the columns where() narrows by.
+ *
+ * @implements CatalogDefinition<{{modelClass}}>
+ */
+final class {{class}} implements CatalogDefinition
+{
+    public function documents(): Builder
+    {
+        return {{modelClass}}::query();
+    }
+
+    public function facets(): array
+    {
+        return [
+            // Facet::make('brand', 'Brand', fn ({{modelClass}} $item): array => $item->brand === null ? [] : [$item->brand->slug => $item->brand->name])
+            //     ->with('brand'),
+        ];
+    }
+
+    public function sorts(): array
+    {
+        return [
+            Sort::make('new', 'Newest first', 'id desc'),
+        ];
+    }
+}
