@@ -23,6 +23,7 @@ Laravel finds the provider by itself. The config is published on demand:
 php artisan vendor:publish --tag=ariadne-config
 ```
 
+- `catalogs`, `tables`, `sync`, `rebuild`: the catalog layer, see [a catalog in one class](#a-catalog-in-one-class).
 - `manticore`: where `Manticore\Connection` connects, from `MANTICORE_HOST`, `MANTICORE_PORT`, `MANTICORE_TIMEOUT` and `MANTICORE_READ_TIMEOUT`.
 - `url`: the `style` of the address (`comma` or `brackets`), the `price_unit` and the `sorts` an address accepts.
 - `screen`: the `order` of values in a group (`dictionary`, `natural`, `alpha`, `count-desc`); `filtered_bounds` makes the price bounds follow the selection, not the whole scope; `keep_zeros` keeps a value nothing matches, dimmed; `palette_on_price`, together with `keep_zeros`, dims instead of hiding the values that only a price range zeroes, off by default; `min_values` is how many values a group without a selection needs to show.
@@ -31,7 +32,243 @@ The package does not know your catalog: no models, no migrations, no field names
 
 Two extensions are optional. With `intl` the `natural` and `alpha` orders use a `ru_RU` collator, without it a plain natural comparison. `pdo_mysql` is needed only for Manticore.
 
-Read [the traps](#traps) before the first screen: each of them fails silently.
+Two ways in. [A catalog in one class](#a-catalog-in-one-class) describes the catalog and lets the package keep the tables, the sync and the rebuilds. [The low level](#the-low-level) gives the ports and the parts for an application that keeps its own index; read [its traps](#traps) before the first screen, each of them fails silently.
+
+## A catalog in one class
+
+Describe the facets once; the category decides which of them appear. The package keeps the facet tables, follows your model saves, rebuilds without downtime and hands you a ready screen with models, counts and links.
+
+```bash
+php artisan ariadne:install --catalog=products --model='App\Models\Product'
+php artisan migrate
+php artisan ariadne:rebuild products
+php artisan ariadne:check
+```
+
+`install` writes `config/ariadne.php` if you have none, the migration of the facet tables and a definition in `app/Search/ProductCatalog.php`. The migration is yours, as with `make:queue-table`: the package never loads migrations from `vendor`, so renaming a file in a release cannot drop your tables. A second run refuses when the file, its row in `migrations` or the tables exist.
+
+### The definition
+
+```php
+namespace App\Search;
+
+use App\Models\Product;
+use Illuminate\Database\Eloquent\Builder;
+use TimurTurdyev\Ariadne\Catalog\Attributes\Fields;
+use TimurTurdyev\Ariadne\Catalog\Attributes\Price;
+use TimurTurdyev\Ariadne\Catalog\CatalogDefinition;
+use TimurTurdyev\Ariadne\Catalog\Facet;
+use TimurTurdyev\Ariadne\Catalog\Sort;
+
+/**
+ * @implements CatalogDefinition<Product>
+ */
+#[Price('price')]
+#[Fields('category_id')]
+final class ProductCatalog implements CatalogDefinition
+{
+    public function documents(): Builder
+    {
+        return Product::query()->where('is_active', true);
+    }
+
+    public function facets(): array
+    {
+        return [
+            Facet::make('brand', 'Brand', fn (Product $p): array => $p->brand === null ? [] : [$p->brand->slug => $p->brand->name])
+                ->with('brand')
+                ->single(),
+            Facet::make('color', 'Color', fn (Product $p): array => $p->colors->pluck('name', 'slug')->all())
+                ->with('colors')
+                ->swatches(),
+            Facet::make('size', 'Size', fn (Product $p): array => $p->size === null ? [] : [$p->size => strtoupper($p->size)]),
+            Facet::toggle('sale', 'On sale', fn (Product $p): bool => $p->old_price > $p->price),
+        ];
+    }
+
+    public function sorts(): array
+    {
+        return [
+            Sort::make('popular', 'Popular', 'sales_count desc'),
+            Sort::make('new', 'Newest', 'published_at desc'),
+            Sort::make('price-asc', 'Cheaper first', 'price'),
+            Sort::make('price-desc', 'Dearer first', 'price desc'),
+        ];
+    }
+}
+```
+
+And the config line `install` wrote:
+
+```php
+'catalogs' => [
+    'products' => ['definition' => App\Search\ProductCatalog::class, 'min_coverage' => 0.05],
+],
+```
+
+- **`documents()`** is what the listing shows: the visibility conditions and the relations a card loads. No `select()`, no joins, no order.
+- **A producer returns `[value => label]` or `Term` objects, and `[]` when the document has no value.** Return `[]`, not `null` and not a guess: a group appears only where some document has it.
+- **The value is a stable slug from a column**, `$brand->slug`, not one made from the label. A label slug changes every address when someone renames the brand, and an old link silently loses the filter.
+- **`->with()` names the relations the producer reads.** A rebuild eager loads them, and edits of these relations mark the documents for a sync.
+- **`->single()`** says a document has at most one value of the facet: the panel offers no "all of" switch. **`->swatches()`** marks the widget, the image comes from `Term::of(...)->image('#d33')`.
+- **`#[Price(column, unit: 100)]`** names the price column, here in cents. **`#[Fields(...)]`** lists what `where()` may narrow by: a column, a belongsTo or a belongsToMany relation. **`#[OneCardPer('model_id')]`** shows documents of one model as one card.
+- **`Sort::make()`** takes columns of the model with `asc` or `desc`. A row where a sort column is NULL goes last in either direction on every database; `->nullsFirst()` turns that over. Anything else in the order is raw SQL, allowed on the database driver only. The first sort is the default: its address has no `sort`, and an explicit `?sort=` of it is dropped from links and canonical.
+
+Keys of a catalog entry, each with a default in code: `definition`, `driver` (`database`), `per_page` (24), `keep_zeros` (true), `min_values` (2), `min_coverage` (0), `max_groups` (null), `filtered_bounds` (false), `style` (`comma`), `carry` (foreign parameters the links keep, `[]`), `cache` (a cache store for screens, null), `slug_language` (`app.locale`). A misspelled key fails with a "did you mean". The key of the entry, `products`, names the storage: it goes into table names and cache keys, so you may rename the class but not the key.
+
+### The controller
+
+```php
+use App\Search\ProductCatalog;
+use TimurTurdyev\Ariadne\Catalog\Catalogs;
+
+public function show(Request $request, Category $category, Catalogs $catalogs)
+{
+    $screen = $catalogs->for(ProductCatalog::class)
+        ->where('category_id', $category->descendantIds())
+        ->within($category)
+        ->screen($request);
+
+    if ($screen->redirect() !== null) {
+        return redirect($screen->redirect(), 301);
+    }
+
+    return view('catalog', ['category' => $category, 'screen' => $screen]);
+}
+```
+
+- `where(field, values)`: `null` means no restriction, `[]` means nothing.
+- `ranked($ids)` narrows to the ids of your own search, in their order: the text search stays yours, the layer runs no `q`. Without `ranked()` a `q` is dropped from the links.
+- `landingOf($listingPath, ['brand' => 'acme'])` makes this request a landing page that pins values in its own path.
+- `within($context)` passes the category to the panel rules, `perPage($n)` overrides `per_page`.
+- `screen($request, Need::Results)` skips the panel, for "show more".
+
+`$screen` is one object for Blade, JSON and Inertia: `items` (models in listing order), `total`, `page`, `perPage`, `facets` (groups with `facet`, `title`, `widget`, `coverage` and values with `href`, `only`, `count`, `selected`, `disabled`, `image`), `sorts`, `applied` (chips that take a filter off, the price too), `reset`, `paging`, `price`, `canonical`, `redirect()`, `degraded` and `result`, the raw `SearchResult` for your SEO rules. `paginator()` gives Laravel's paginator on these addresses, `through(fn)` maps the items for JSON.
+
+```blade
+@foreach ($screen->facets as $group)
+    <h3>{{ $group->title }}</h3>
+    @foreach ($group->values as $value)
+        <a href="{{ $value->href }}" @class(['selected' => $value->selected, 'dim' => $value->disabled])>
+            {{ $value->label }} <small>{{ $value->count }}</small>
+        </a>
+    @endforeach
+@endforeach
+
+@foreach ($screen->items as $product)
+    <x-product-card :product="$product" />
+@endforeach
+
+{{ $screen->paginator()->links() }}
+```
+
+### The schedule
+
+The provider schedules nothing; add the two lines yourself:
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('ariadne:sync')->everyMinute()->withoutOverlapping()->onOneServer();
+Schedule::command('ariadne:rebuild')->dailyAt('04:00')->withoutOverlapping()->onOneServer();
+```
+
+Deploy with `php artisan migrate --force`, `php artisan optimize` (a broken definition stops it: the package hooks a static check into `optimize`) and `php artisan ariadne:check`; after a change of the definition run `php artisan ariadne:rebuild`.
+
+### Facets from data and panel rules
+
+Properties from an admin panel make one dynamic facet: every term names its own group.
+
+```php
+Facet::dynamic('props', function (Product $p): iterable {
+    foreach ($p->values as $value) {
+        yield Term::of($value->option->slug, $value->option->label, $value->option->sort)
+            ->in($value->attribute->slug, $value->attribute->title);
+    }
+})->with('values.attribute', 'values.option')
+  ->describedBy(fn (): iterable => Filter::query()->where('is_active', true)->get()->map(
+      fn (Filter $f): Facet => Facet::named($f->slug, $f->title)->at($f->position),
+  )),
+```
+
+Without `describedBy()` a group takes the title its terms carry and its place by coverage. With it, the admin table decides titles, order, widgets and which groups exist; `describedBy()` is read at a rebuild only, so after saving a filter in the admin call `$catalogs->for(ProductCatalog::class)->touchAll()`, and the next `ariadne:sync` rebuilds. Group slugs from data are checked at a rebuild: a slug that is not a slug, an all-digit one, one the address uses itself (`q`, `sort`, `page`, `price`) or one of a declared facet is refused, the rebuild and `ariadne:check` name it with the number of documents. A value that is not a slug is written as `Str::slug()` of it in `slug_language`.
+
+A category shapes its panel through the optional interface `ShapesPanel`:
+
+```php
+public function panel(Panel $panel, mixed $context): Panel
+{
+    // search, sale and brand pages mix categories
+    if (! $context instanceof Category) {
+        return $panel->only('brand', 'color', 'sale')->max(8);
+    }
+
+    return PanelRules::apply($panel, $context);
+}
+```
+
+`first`, `only`, `hide`, `show`, `max`, `minCoverage` and `byCoverage` apply in this order: `only`, `hide` and the coverage threshold; then the pinned groups (`only` or `first`); then `max`. A group with a selection is never hidden, so a filter can always be taken off; pinned groups and toggles pass the threshold. The rules of a category tree - the nearest category with its own settings wins - are your code and your table: one recursive query over the chain of categories, cached by you until the admin saves. On mixed screens (search, sale, a brand page, the root) a 5% threshold still leaves around twenty groups: use `only()` and `max()`, or the rules of the dominant category through `within($dominant)`.
+
+### What keeps the rows fresh
+
+Writes through Eloquent mark the documents in the transaction of the write, and the marks are applied after the response. The root model is followed on `saved`, `updated`, `deleted`, `restored` and `forceDeleted`; the relations of `->with()` paths on their own events: a belongsTo on `updated` and `deleting`, a hasMany on `created`, `updated` and `deleted` (the previous parent too, when a row moves), a belongsToMany through its pivot class only (`->using()`). One edit of a relation that touches more than 2000 documents asks for a rebuild instead.
+
+> **What Laravel does not report**
+>
+> - `attach`, `detach`, `sync`, `toggle` and `updateExistingPivot` on a pivot without `->using()`;
+> - `update`, `increment`, `decrement` and `delete` on a query, `Model::insert`, `upsert`, `DB::table`, `saveQuietly` and `withoutEvents`;
+> - `nullOnDelete` and cascades of foreign keys;
+> - writes of other applications and conditions on time, such as `now()` in a producer.
+>
+> After such a write call `$catalogs->for(ProductCatalog::class)->touch($ids)` (an id, a list, a query or a relation), or leave it to the nightly rebuild. `touchAll()` asks for a rebuild on the next sync.
+
+Price, the `#[Fields]` columns, the sort columns and the visibility of `documents()` are read live from your table on every screen: hiding a product with raw SQL needs nothing. Only the facet values follow the marks.
+
+- A counter on the root model that no producer reads, views or sales, still marks the document on every save: write it with `DB::table()->increment()` or `saveQuietly()`.
+- `$catalogs->withoutSync(fn () => ...)` and `ARIADNE_SYNC=false` turn the marks off, for imports and seeders followed by a rebuild.
+- `drain()` applies pending edits now, for an admin that shows its own edit in the response.
+- An application upgraded from Laravel 10 with an old `app/Http/Kernel.php` may lack `InvokeDeferredCallbacks`: then edits wait for the minute sync, and `ariadne:check` says so.
+
+Edits lag behind by the end of the request as a rule, by a minute when a drain fails, until the night when a write bypasses the events.
+
+### Tests of your application
+
+After seeding, run `ariadne:rebuild` or `drain()`; an edit made in a test without an HTTP request reaches the rows only through `drain()`. On SQLite and PostgreSQL a rebuild runs inside the transaction of `RefreshDatabase`; on MySQL and MariaDB its DDL would commit that transaction, so a test that rebuilds uses `DatabaseMigrations` or `DatabaseTruncation`. Set `ARIADNE_SYNC=false` where the tests do not need the facet rows.
+
+### Operations
+
+| command | |
+|---|---|
+| `ariadne:install [--catalog=] [--model=] [--upgrade]` | config, migration, definition |
+| `ariadne:rebuild {catalog?*} [--force] [--wait=]` | builds a new generation and publishes it; exit 1 when the gate refused it (an empty build over a non-empty one needs `--force`), 2 on a failure, 3 when another rebuild runs |
+| `ariadne:sync {catalog?*}` | the minute pass: pending marks, a requested rebuild, the previous generation after ten minutes, a flag a killed rebuild left |
+| `ariadne:check [--strict] [--static]` | developer mistakes and data problems at once; exit 1 on errors, with `--strict` on warnings too; `--static` without the database |
+
+- A rebuild fills a new table next to the live one and publishes it by moving a pointer, so readers never see a half-built table and never wait. Edits made during the fill are replayed into the new table right before the switch.
+- The database user needs the right to create and drop tables. Locks need a cache store with locks shared by every server (`sync.lock_store`; redis, memcached or database), and `rebuild.lock_seconds` longer than the longest rebuild.
+- On PostgreSQL lower `random_page_cost` (1.1 on SSD): with the default 4 small categories are planned as a hash join over every product, 39 instead of 16 ms per screen in the measurements of the prototype.
+- On SQLite switch the database to WAL: in rollback journal mode a rebuild blocks readers.
+- `cache` in a catalog entry caches screens in that store: the key includes the generation and a version that grows with every sync, so every edit, a stock change by an order included, cools all screens of the catalog. Cache screens of catalogs that change rarely.
+- `migrate:rollback` drops the facet tables with the generations; `ariadne:rebuild` brings them back, and the addresses stay, since they are made of slugs.
+
+### How far the database goes
+
+Measured on an M5 Pro laptop with the database local, 14 groups per screen, MariaDB 12.3 and PostgreSQL 18.6, p50 of 15 screens:
+
+| | 100k products, 665k facet rows | 300k products, 2M facet rows |
+|---|---|---|
+| a category of 300-430 products | 3-8 ms | 4-12 ms |
+| the root, no selection / three values selected | MariaDB 138 / 193 ms, PostgreSQL 104 / 177 ms | MariaDB 487 / 720 ms, PostgreSQL 110 / 177 ms |
+| rebuild | MariaDB 10 s, PostgreSQL 14 s | MariaDB 31 s, PostgreSQL 33-49 s |
+| sync of 100 edited products | 19-41 ms | 19-30 ms |
+
+A screen costs what its scope holds, not what the catalog holds: categories stay fast at any size. The root and the large categories grow with the catalog; on PostgreSQL parallel aggregation keeps them flat, on MariaDB and SQLite they pass half a second around 300k products. That is the point to move to Manticore, the driver of 0.4, which costs about the same on every scope.
+
+Names: `ProductCatalog` is the definition, `Catalog<Product>` the catalog at work, the key `products` the storage. The words catalog in `SearchCatalog` and `SqlCatalog` below belong to the low level, which a catalog in one class does not need.
+
+## The low level
+
+Everything below is what the catalog layer is built on, for an application that keeps its own index and tables: the ports, the flat table, the panel with links and the Manticore tables. An application on the catalog layer does not need it.
 
 ## SQL facets on a flat table
 
@@ -492,5 +729,13 @@ ARIADNE_MANTICORE=127.0.0.1:9306 vendor/bin/pest tests/Feature/Manticore
 ```
 
 Without the variable these cases are skipped. They drop every table whose name starts with `ariadne_it_`, before and after each case, so point them at an instance of their own.
+
+The catalog layer is checked against a naive model of the screen on random addresses, and its sync against fresh rebuilds after random edits, on SQLite in the suite. MariaDB and PostgreSQL join when you name a separate instance, with a database `ariadne_test` and a passwordless `root` or `postgres`:
+
+```bash
+ARIADNE_MARIADB=127.0.0.1:33999 ARIADNE_PGSQL=127.0.0.1:55999 vendor/bin/pest tests/Feature/Catalog
+```
+
+These tests drop every table whose name starts with `shop_` or `facet_` in that database.
 
 MIT license.
