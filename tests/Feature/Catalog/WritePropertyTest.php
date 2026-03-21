@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use TimurTurdyev\Ariadne\Catalog\Catalog;
+use TimurTurdyev\Ariadne\Catalog\Catalogs;
 use TimurTurdyev\Ariadne\Tests\Support\Shop\Brand;
 use TimurTurdyev\Ariadne\Tests\Support\Shop\Color;
 use TimurTurdyev\Ariadne\Tests\Support\Shop\Feature;
@@ -61,6 +62,27 @@ it('replays an edit made while the rebuild fills its table', function (string $c
     expect($catalog->rebuild()->published())->toBeTrue()
         ->and(catalog_rows($catalog))->toBe($published);
 })->with(catalog_connections(sqliteScreens: 1, serverScreens: 1))->after(fn () => catalog_drop_all());
+
+it('applies a second edit of a document whose mark was already taken', function (string $connection, int $rounds, bool $byRebuild): void {
+    $catalog = catalog_writable($connection);
+    $product = Product::query()->create(['name' => 'Twice', 'brand_id' => 1, 'category_id' => 1, 'price' => 1000, 'sales' => 0, 'active' => true]);
+
+    // The first mark goes away while this process still counts the document as marked.
+    if ($byRebuild) {
+        expect($catalog->rebuild()->published())->toBeTrue();
+    } else {
+        app(Catalogs::class)->syncer('shop')->drain();
+    }
+
+    $product->update(['brand_id' => 2]);
+    $catalog->drain();
+    $live = catalog_rows($catalog);
+
+    expect($catalog->rebuild()->published())->toBeTrue()
+        ->and(catalog_rows($catalog))->toBe($live);
+})->with(catalog_connections(sqliteScreens: 1, serverScreens: 1))
+    ->with(['taken by a rebuild' => true, 'taken by another drain' => false])
+    ->after(fn () => catalog_drop_all());
 
 /**
  * @param  Catalog<Product>  $catalog

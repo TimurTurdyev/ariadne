@@ -278,7 +278,11 @@ final readonly class Catalog
 
     public function rebuild(bool $force = false, int $wait = 0): RebuildOutcome
     {
-        return $this->catalogs->rebuilder($this->spec->name)->rebuild($force, $wait);
+        $outcome = $this->catalogs->rebuilder($this->spec->name)->rebuild($force, $wait);
+        // The replay took the marks of this process: a later edit of the same document must mark it again.
+        $this->catalogs->listener()->take($this->spec->name);
+
+        return $outcome;
     }
 
     /**

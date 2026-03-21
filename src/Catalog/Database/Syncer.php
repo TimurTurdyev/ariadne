@@ -169,6 +169,13 @@ final readonly class Syncer
 
         $applied = [];
 
+        // Documents of this request go in even when another process took their marks already.
+        if ($own !== []) {
+            $projector->flush($applier->apply($projector, $state->generation, $own), $state->generation);
+            $this->bumpVersion();
+            array_push($applied, ...$own);
+        }
+
         while (($pending = $this->journal->pending($this->spec->name)) !== []) {
             $documents = array_values(array_unique(array_column($pending, 'document')));
             $projector->flush($applier->apply($projector, $state->generation, $documents), $state->generation);
