@@ -15,11 +15,13 @@ final readonly class UrlFormat
     /**
      * @param  int  $priceUnit  base units in one unit typed in the address: 100 when prices are kept in cents
      * @param  list<string>  $sorts  sort slugs besides ''
+     * @param  list<string>  $scalars  facets whose single value the brackets style writes as key=value, such as a toggle
      */
     public function __construct(
         public UrlStyle $style = UrlStyle::Comma,
         public int $priceUnit = 1,
         public array $sorts = [],
+        public array $scalars = [],
     ) {
         if ($priceUnit < 1) {
             throw new InvalidArgumentException("Price unit must be a positive integer, {$priceUnit} given.");

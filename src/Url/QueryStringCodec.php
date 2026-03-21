@@ -135,7 +135,7 @@ final class QueryStringCodec
             $slugs = $this->slugs($choice[1]);
 
             if ($slugs !== []) {
-                $facets[$key] = $this->choiceValue($choice[0], $slugs);
+                $facets[$key] = $this->choiceValue($choice[0], $slugs, $this->format->keys()->facet($key)->value ?? '');
             }
         }
 
@@ -237,7 +237,7 @@ final class QueryStringCodec
             sort($slugs, SORT_STRING);
             $operator = $choice->isCombined() ? FacetOperator::All : FacetOperator::Any;
 
-            array_push($pairs, ...$this->paramPairs($this->param($choice->facet), $this->choiceValue($operator, $slugs)));
+            array_push($pairs, ...$this->paramPairs($this->param($choice->facet), $this->choiceValue($operator, $slugs, $choice->facet->value)));
         }
 
         $bounds = $price
@@ -369,10 +369,11 @@ final class QueryStringCodec
      * @param  list<string>  $slugs
      * @return string|list<string>
      */
-    private function choiceValue(FacetOperator $operator, array $slugs): string|array
+    private function choiceValue(FacetOperator $operator, array $slugs, string $facet): string|array
     {
         if ($this->format->style === UrlStyle::Brackets) {
-            return $slugs;
+            // A toggle reads ?sale=1 in either style: the menu links to it, so the canonical address must too.
+            return count($slugs) === 1 && in_array($facet, $this->format->scalars, true) ? $slugs[0] : $slugs;
         }
 
         $prefix = $operator === FacetOperator::All ? self::OPERATOR_ALL_PREFIX : '';

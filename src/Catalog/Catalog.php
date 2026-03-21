@@ -200,7 +200,7 @@ final readonly class Catalog
 
         $wanted = $this->address($links, $query, $result, $base);
 
-        if (rawurldecode($requestUri) === rawurldecode($wanted)) {
+        if (self::sameAddress($requestUri, $wanted)) {
             return $screen;
         }
 
@@ -556,6 +556,28 @@ final readonly class Catalog
         }
 
         return $sorts;
+    }
+
+    /**
+     * One address in substance: the same path and the same parameters in any order, page 1 the same as none.
+     * A link of Laravel's paginator puts the page after the foreign parameters, the package before them.
+     */
+    private static function sameAddress(string $requested, string $canonical): bool
+    {
+        $read = static function (string $address): array {
+            $path = rawurldecode((string) parse_url($address, PHP_URL_PATH));
+            parse_str((string) parse_url($address, PHP_URL_QUERY), $params);
+
+            if (($params['page'] ?? null) === '1') {
+                unset($params['page']);
+            }
+
+            ksort($params);
+
+            return [$path, $params];
+        };
+
+        return $read($requested) === $read($canonical);
     }
 
     /**

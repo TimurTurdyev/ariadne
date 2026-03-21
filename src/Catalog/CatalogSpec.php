@@ -177,14 +177,17 @@ final readonly class CatalogSpec
         }
 
         [$sorts, $default] = self::sorts($definition->sorts(), $problems, $databaseOnly);
+        $declared = $definition->facets();
+        $toggles = self::toggles($declared);
         $format = new UrlFormat(
             $style,
             max(1, $price->unit ?? 1),
             array_map(static fn (Sort $sort): string => $sort->slug, $sorts),
+            $toggles,
         );
         $codec = new QueryStringCodec($format);
         $carry = self::strings($options['carry'], 'carry', $problems);
-        [$facets, $relations] = self::facets($definition->facets(), $model, $codec, $carry, $problems);
+        [$facets, $relations] = self::facets($declared, $model, $codec, $carry, $problems);
         $fields = self::fields(self::attribute($reflection, Fields::class)->names ?? [], $model, $problems);
 
         $perPage = self::int($options['per_page'], 'per_page', 1, 500, $problems) ?? 24;
@@ -332,6 +335,25 @@ final readonly class CatalogSpec
         }
 
         return null;
+    }
+
+    /**
+     * Toggles: the brackets style writes their one value as key=value, as a menu links to them.
+     *
+     * @param  list<mixed>  $declared
+     * @return list<string>
+     */
+    private static function toggles(array $declared): array
+    {
+        $toggles = [];
+
+        foreach ($declared as $facet) {
+            if ($facet instanceof Facet && $facet->isDeclared() && $facet->isToggle()) {
+                $toggles[] = $facet->slug;
+            }
+        }
+
+        return $toggles;
     }
 
     /**
