@@ -3,7 +3,13 @@
 All notable changes to this package are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [0.3.1] - 2026-03-22
+
+- **A toggle keeps `?sale=1` in the brackets style.** The style wrote every facet value as `sale[]=1`, so the links, the canonical address and `redirect()` of the catalog layer led away from `?sale=1`, the address a menu links to. `UrlFormat` takes `scalars`, facets whose single value is written as `key=value`, and the layer passes its toggles there; both forms are read as before.
+- **A link of Laravel's paginator is not a redirect.** `Screen::paginator()` puts `page` after the carried parameters, the addresses of the package put it before them, and `redirect()` compared the strings. It now compares the path and the parameters in any order, and `page=1` counts as no page.
+- **A second edit of a document is not lost after its mark was taken.** When a rebuild in the same process or a sync of another one took the mark of a document, the next edit of it in the same request wrote no mark, and `drain()` left the rows as they were. A drain now applies the documents of its request too, and `rebuild()` forgets which documents the process has marked.
+
+## [0.3.0] - 2026-03-15
 
 - **A catalog in one class.** A new layer, `TimurTurdyev\Ariadne\Catalog`, on top of the core: describe the catalog once in a class (`CatalogDefinition` with `Facet`, `Term`, `Sort` and the attributes `Price`, `Fields`, `OneCardPer`), run `ariadne:install`, `migrate` and `ariadne:rebuild`, and ask `Catalogs::for(...)->screen($request)` for a typed `Screen` with models, counts and ready links. The package keeps the facet tables, follows Eloquent writes through marks written in the transaction of the write, applies them after the response, and rebuilds into a new table next to the live one, replaying the edits made during the fill before it switches. Facets from data (`Facet::dynamic()` with `describedBy()`), panel rules per category (`ShapesPanel`, `Panel`) and a coverage threshold. Sorts put NULLs last on every database, `nullsFirst()` turns that over. Commands `ariadne:install`, `ariadne:rebuild`, `ariadne:sync`, `ariadne:check` and a static check hooked into `php artisan optimize`; events `CatalogRebuilt` and `CatalogSynced`. Nothing changes for an application that declares no catalog: no listener, no tables. The migration of 0.3 already has the columns the Manticore driver of 0.4 needs.
 - Requires `illuminate/console`, `illuminate/filesystem`, `illuminate/http` and `illuminate/pagination`, all part of every Laravel application.
