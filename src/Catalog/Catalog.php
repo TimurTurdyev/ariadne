@@ -563,8 +563,9 @@ final readonly class Catalog
     }
 
     /**
-     * One address in substance: the same path and the same parameters in any order, page 1 the same as none.
-     * A link of Laravel's paginator puts the page after the foreign parameters, the package before them.
+     * One address in substance: the same path, the same parameters in any order, the values of a group in any order,
+     * page 1 the same as none. A paginator puts the page after the foreign parameters, a filter form sends values
+     * in panel order: neither is worth a redirect, the canonical link tells search engines the rest.
      */
     private static function sameAddress(string $requested, string $canonical): bool
     {
@@ -576,12 +577,39 @@ final readonly class Catalog
                 unset($params['page']);
             }
 
+            foreach ($params as $name => $value) {
+                $params[$name] = self::valueSet($value);
+            }
+
             ksort($params);
 
             return [$path, $params];
         };
 
         return $read($requested) === $read($canonical);
+    }
+
+    /**
+     * A parameter value as an ordered set: key[]=b&key[]=a and key=b,a read like key=a,b; the "all:" mark stays.
+     */
+    private static function valueSet(mixed $value): mixed
+    {
+        if (is_array($value)) {
+            $values = array_values(array_unique(array_map(static fn (mixed $one): string => is_scalar($one) ? (string) $one : '', $value)));
+            sort($values, SORT_STRING);
+
+            return $values;
+        }
+
+        if (! is_string($value) || ! str_contains($value, QueryStringCodec::VALUE_SEPARATOR)) {
+            return $value;
+        }
+
+        $all = str_starts_with($value, QueryStringCodec::OPERATOR_ALL_PREFIX);
+        $values = array_values(array_unique(explode(QueryStringCodec::VALUE_SEPARATOR, $all ? substr($value, strlen(QueryStringCodec::OPERATOR_ALL_PREFIX)) : $value)));
+        sort($values, SORT_STRING);
+
+        return ($all ? QueryStringCodec::OPERATOR_ALL_PREFIX : '').implode(QueryStringCodec::VALUE_SEPARATOR, $values);
     }
 
     /**

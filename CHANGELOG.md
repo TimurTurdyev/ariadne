@@ -3,6 +3,10 @@
 All notable changes to this package are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+- **The order of values in one group is not a redirect.** A filter form sends the values in panel order, `color[]=white&color[]=beige`, while the canonical address lists them by slug, so `Screen::redirect()` answered every pick of two values with a 301. It now compares the values of a parameter as a set: the order and a repeated value are not worth a redirect, the canonical link covers search engines; an unknown value still is.
+
 ## [0.3.1] - 2026-03-22
 
 - **A toggle keeps `?sale=1` in the brackets style.** The style wrote every facet value as `sale[]=1`, so the links, the canonical address and `redirect()` of the catalog layer led away from `?sale=1`, the address a menu links to. `UrlFormat` takes `scalars`, facets whose single value is written as `key=value`, and the layer passes its toggles there; both forms are read as before.
